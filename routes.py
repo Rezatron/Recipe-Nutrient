@@ -2,6 +2,7 @@ from flask import Flask, Blueprint, jsonify, request, render_template
 import requests
 import time
 from urllib.parse import quote
+from utils import clean_micro_nutrients
 
 
 app = Flask(__name__)
@@ -84,14 +85,21 @@ def fetch_recipes():
                 health_labels = recipe.get('healthLabels', [])  # Extract health labels (if available)
                 url = recipe.get('url')  # Extract the URL for the recipe
                 image = recipe.get('image')  # Extract the image URL for the recipe
+                calories = recipe.get('calories')  # Extract the calories for the recipe
+                micro_nutrients = recipe.get('totalNutrients', {})  # Extract total nutrients
+                                # Clean up the micro-nutrients data
+                cleaned_micro_nutrients = clean_micro_nutrients(micro_nutrients)
+
                 # Append extracted details to the filtered_recipes list
                 filtered_recipes.append({
                     'label': label,
                     'ingredient_lines': ingredient_lines,
-                    'health_labels': health_labels,
                     'ingredients': ingredients,
                     'url': url,
                     'image': image,
+                    'calories': calories,
+                    'micro_nutrients': micro_nutrients,
+
                     # Add more details as needed
                 })
             return render_template('index.html', recipes=filtered_recipes)
@@ -101,6 +109,8 @@ def fetch_recipes():
     except requests.RequestException as e:
         # Handle network errors
         return jsonify({'error': f'Network Error: {e}'}), 500
+
+
 
 
 

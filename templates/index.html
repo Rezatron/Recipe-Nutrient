@@ -27,12 +27,6 @@
                 <li>{{ ingredient_line }}</li>
                 {% endfor %}
             </ul>
-            <h3>Health Labels:</h3>
-            <ul>
-                {% for health_label in recipe.health_labels %}
-                <li>{{ health_label }}</li>
-                {% endfor %}
-            </ul>
             <h3>Instructions:</h3>
             <ol>
                 {% if recipe.url %}
@@ -41,6 +35,14 @@
                 <li>No instructions available</li>
                 {% endif %}
             </ol>
+            <h3>Calories:</h3>
+            <p>{{ recipe.calories | round }}</p> <!-- Round the calories value -->
+            <h3>Micro-Nutrients:</h3>
+            <ul>
+                {% for nutrient_label, nutrient_data in recipe.micro_nutrients.items() %}
+                <li>{{ nutrient_data.label }}: {{ nutrient_data.quantity | round }} {{ nutrient_data.unit }}</li>
+                {% endfor %}
+            </ul>
         </li>
         {% endfor %}
     </ul>
