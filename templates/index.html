@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Suggestions</title>
+</head>
+
+<body>
+    <h1>Recipe Suggestions</h1>
+    <form action="/recipes" method="GET">
+        <label for="ingredients">Enter Ingredients (comma-separated):</label><br>
+        <input type="text" id="ingredients" name="ingredients"><br><br>
+        <button type="submit">Submit</button>
+    </form>
+
+    {% if recipes %}
+    <ul>
+        {% for recipe in recipes %}
+        <li>
+            <h2>{{ recipe.label }}</h2>
+            <img src="{{ recipe.image }}" alt="{{ recipe.label }}">
+            <h3>Ingredients:</h3>
+            <ul>
+                {% for ingredient_line in recipe.ingredient_lines %}
+                <li>{{ ingredient_line }}</li>
+                {% endfor %}
+            </ul>
+            <h3>Health Labels:</h3>
+            <ul>
+                {% for health_label in recipe.health_labels %}
+                <li>{{ health_label }}</li>
+                {% endfor %}
+            </ul>
+            <h3>Instructions:</h3>
+            <ol>
+                {% if recipe.url %}
+                <li><a href="{{ recipe.url }}" target="_blank">Link to Instructions</a></li>
+                {% else %}
+                <li>No instructions available</li>
+                {% endif %}
+            </ol>
+        </li>
+        {% endfor %}
+    </ul>
+    {% elif error %}
+    <p>{{ error }}</p>
+    {% endif %}
+</body>
+
+</html>
