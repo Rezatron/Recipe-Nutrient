@@ -6,28 +6,8 @@ from utils import clean_micro_nutrients
 from servings import estimate_servings  # Importing the estimate_servings function from servings.py
 from units import nutrient_units
 app = Flask(__name__)
+from ratelimit import exceeds_rate_limit, SEARCH_LIMIT, TIME_WINDOW
 
-recipes_bp = Blueprint('recipes', __name__)
-
-# Define rate limit constants
-SEARCH_LIMIT = 5  # Maximum number of searches allowed within the time window
-TIME_WINDOW = 60  # Time window in seconds (e.g., 60 seconds = 1 minute)
-
-# Define a dictionary to store search counts for each IP address
-search_counts = {}
-
-# Function to check if a request exceeds the rate limit
-def exceeds_rate_limit(ip_address):
-    current_time = time.time()
-    if ip_address not in search_counts:
-        search_counts[ip_address] = [(current_time, 1)]
-        return False
-    else:
-        # Remove old entries from the search counts list
-        search_counts[ip_address] = [(t, c) for t, c in search_counts[ip_address] if current_time - t <= TIME_WINDOW]
-        # Calculate the total number of searches within the time window
-        total_searches = sum(count for _, count in search_counts[ip_address])
-        return total_searches >= SEARCH_LIMIT
 
 # Define a route to fetch recipes based on ingredients
 @app.route('/recipes', methods=['GET'])
@@ -82,27 +62,18 @@ def fetch_recipes():
                 image = recipe.get('image')  # Extract the image URL for the recipe
                 calories = recipe.get('calories')  # Extract the calories for the recipe
                 micro_nutrients = recipe.get('totalNutrients', {})  # Extract total nutrients
-        
-
-
                 # Iterate through micro_nutrients and add units dynamically
                 for nutrient_label, nutrient_data in micro_nutrients.items():
                     if 'unit' in nutrient_data:
                         nutrient_units[nutrient_label] = nutrient_data['unit']
-
-
-
                 # Clean up the micro-nutrients data
                 cleaned_micro_nutrients = clean_micro_nutrients(micro_nutrients)
-
                 # Estimate servings using the provided function
                 ingredient_weights = [1] * len(ingredient_lines)  # Assuming equal weights for all ingredients
-                estimated_servings = estimate_servings(ingredient_weights, calories)
-                
+                estimated_servings = estimate_servings(ingredient_weights, calories)       
                 # Calculate values per serving
                 calories_per_serving = calories / estimated_servings
-                micro_nutrients_per_serving = {label: value / estimated_servings for label, value in cleaned_micro_nutrients.items()}
-                
+                micro_nutrients_per_serving = {label: value / estimated_servings for label, value in cleaned_micro_nutrients.items()}  
                 # Append extracted details to the filtered_recipes list
                 filtered_recipes.append({
                     'label': label,
@@ -123,6 +94,18 @@ def fetch_recipes():
     except requests.RequestException as e:
         # Handle network errors
         return jsonify({'error': f'Network Error: {e}'}), 500
+
+
+
+
+
+
+#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
 
 # Define route to handle individual recipe requests
 @app.route('/recipe/<recipe_id>', methods=['GET'])
