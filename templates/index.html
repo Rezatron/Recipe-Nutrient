@@ -40,8 +40,9 @@
             <h3>Micro-Nutrients per Serving:</h3> <!-- Updated to display nutrients per serving -->
             <ul>
                 {% for nutrient_label, nutrient_value in recipe.micro_nutrients_per_serving.items() %}
-                <li>{{ nutrient_label }}: {{ nutrient_value | round }}</li>
-                <!-- Round the nutrient value per serving -->
+                <li>{{ nutrient_label }}: {{ nutrient_value | round }} {{ recipe.nutrient_units.get(nutrient_label, '')
+                    }}</li>
+                <!-- Round the nutrient value per serving and display unit -->
                 {% endfor %}
             </ul>
             <!-- New section to display estimated servings -->

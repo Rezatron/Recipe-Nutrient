@@ -4,7 +4,7 @@ import time
 from urllib.parse import quote
 from utils import clean_micro_nutrients
 from servings import estimate_servings  # Importing the estimate_servings function from servings.py
-
+from units import nutrient_units
 app = Flask(__name__)
 
 recipes_bp = Blueprint('recipes', __name__)
@@ -82,6 +82,16 @@ def fetch_recipes():
                 image = recipe.get('image')  # Extract the image URL for the recipe
                 calories = recipe.get('calories')  # Extract the calories for the recipe
                 micro_nutrients = recipe.get('totalNutrients', {})  # Extract total nutrients
+        
+
+
+                # Iterate through micro_nutrients and add units dynamically
+                for nutrient_label, nutrient_data in micro_nutrients.items():
+                    if 'unit' in nutrient_data:
+                        nutrient_units[nutrient_label] = nutrient_data['unit']
+
+
+
                 # Clean up the micro-nutrients data
                 cleaned_micro_nutrients = clean_micro_nutrients(micro_nutrients)
 
@@ -102,7 +112,8 @@ def fetch_recipes():
                     'image': image,
                     'calories_per_serving': calories_per_serving,
                     'micro_nutrients_per_serving': micro_nutrients_per_serving,
-                    'estimated_servings': estimated_servings  # Add the estimated servings to the response
+                    'estimated_servings': estimated_servings,  # Add the estimated servings to the response
+                    'nutrient_units': nutrient_units  # Add the nutrient units to the response
                     # Add more details as needed
                 })
             return render_template('index.html', recipes=filtered_recipes)
