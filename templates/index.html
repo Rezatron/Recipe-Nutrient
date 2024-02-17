@@ -35,14 +35,19 @@
                 <li>No instructions available</li>
                 {% endif %}
             </ol>
-            <h3>Calories:</h3>
-            <p>{{ recipe.calories | round }}</p> <!-- Round the calories value -->
-            <h3>Micro-Nutrients:</h3>
+            <h3>Calories per Serving:</h3> <!-- Updated to display calories per serving -->
+            <p>{{ recipe.calories_per_serving | round }}</p> <!-- Round the calories per serving value -->
+            <h3>Micro-Nutrients per Serving:</h3> <!-- Updated to display nutrients per serving -->
             <ul>
-                {% for nutrient_label, nutrient_data in recipe.micro_nutrients.items() %}
-                <li>{{ nutrient_data.label }}: {{ nutrient_data.quantity | round }} {{ nutrient_data.unit }}</li>
+                {% for nutrient_label, nutrient_value in recipe.micro_nutrients_per_serving.items() %}
+                <li>{{ nutrient_label }}: {{ nutrient_value | round }}</li>
+                <!-- Round the nutrient value per serving -->
                 {% endfor %}
             </ul>
+            <!-- New section to display estimated servings -->
+            <h3>Estimated Servings:</h3>
+            <p>{{ recipe.estimated_servings }}</p>
+            <!-- End of new section -->
         </li>
         {% endfor %}
     </ul>

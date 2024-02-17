@@ -3,7 +3,7 @@ import requests
 import time
 from urllib.parse import quote
 from utils import clean_micro_nutrients
-
+from servings import estimate_servings  # Importing the estimate_servings function from servings.py
 
 app = Flask(__name__)
 
@@ -28,10 +28,6 @@ def exceeds_rate_limit(ip_address):
         # Calculate the total number of searches within the time window
         total_searches = sum(count for _, count in search_counts[ip_address])
         return total_searches >= SEARCH_LIMIT
-
-
-
-
 
 # Define a route to fetch recipes based on ingredients
 @app.route('/recipes', methods=['GET'])
@@ -65,7 +61,6 @@ def fetch_recipes():
     edamam_url = f'https://api.edamam.com/api/recipes/v2?type=public&q={ingredients}&app_id={edamam_app_id}&app_key={edamam_api_key}'
     print(edamam_url)
 
-
     # Debugging: Print the Edamam API URL
     print("Edamam API URL:", edamam_url)
 
@@ -87,9 +82,17 @@ def fetch_recipes():
                 image = recipe.get('image')  # Extract the image URL for the recipe
                 calories = recipe.get('calories')  # Extract the calories for the recipe
                 micro_nutrients = recipe.get('totalNutrients', {})  # Extract total nutrients
-                                # Clean up the micro-nutrients data
+                # Clean up the micro-nutrients data
                 cleaned_micro_nutrients = clean_micro_nutrients(micro_nutrients)
 
+                # Estimate servings using the provided function
+                ingredient_weights = [1] * len(ingredient_lines)  # Assuming equal weights for all ingredients
+                estimated_servings = estimate_servings(ingredient_weights, calories)
+                
+                # Calculate values per serving
+                calories_per_serving = calories / estimated_servings
+                micro_nutrients_per_serving = {label: value / estimated_servings for label, value in cleaned_micro_nutrients.items()}
+                
                 # Append extracted details to the filtered_recipes list
                 filtered_recipes.append({
                     'label': label,
@@ -97,9 +100,9 @@ def fetch_recipes():
                     'ingredients': ingredients,
                     'url': url,
                     'image': image,
-                    'calories': calories,
-                    'micro_nutrients': micro_nutrients,
-
+                    'calories_per_serving': calories_per_serving,
+                    'micro_nutrients_per_serving': micro_nutrients_per_serving,
+                    'estimated_servings': estimated_servings  # Add the estimated servings to the response
                     # Add more details as needed
                 })
             return render_template('index.html', recipes=filtered_recipes)
@@ -110,10 +113,7 @@ def fetch_recipes():
         # Handle network errors
         return jsonify({'error': f'Network Error: {e}'}), 500
 
-
-
-
-
+# Define route to handle individual recipe requests
 @app.route('/recipe/<recipe_id>', methods=['GET'])
 def get_recipe(recipe_id):
     # Construct the URL for the specific recipe endpoint
@@ -143,17 +143,10 @@ def get_recipe(recipe_id):
         # Handle network errors
         return jsonify({'error': f'Network Error: {e}'}), 500
 
-
-
-
-
-
-
+# Define index route
 @app.route('/')
 def index():
     return render_template('index.html')
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
