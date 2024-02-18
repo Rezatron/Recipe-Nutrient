@@ -50,7 +50,7 @@ def fetch_recipes():
     # Get the client's IP address
     client_ip = request.remote_addr
     # Debugging: Print the client's IP address
-    print("Client IP:", client_ip)
+    #print("Client IP:", client_ip)
     
     # Check if the request exceeds the rate limit
     if exceeds_rate_limit(client_ip):
@@ -68,7 +68,7 @@ def fetch_recipes():
     print(edamam_url)
 
     # Debugging: Print the Edamam API URL
-    print("Edamam API URL:", edamam_url)
+    #print("Edamam API URL:", edamam_url)
 
     max_recipes_to_show = 1
 
@@ -92,7 +92,7 @@ def fetch_recipes():
                 micro_nutrients = recipe.get('totalNutrients', {})  # Extract total nutrients
 
                 # testing for bugs
-                print("Micro-nutrients (before division):", micro_nutrients)  
+                #print("Micro-nutrients (before division):", micro_nutrients)  
                 # Extracting the four types of fats
                 fatty_acids_fams = micro_nutrients.get('FAMS', {}).get('quantity', 0)
                 fatty_acids_fapu = micro_nutrients.get('FAPU', {}).get('quantity', 0)
