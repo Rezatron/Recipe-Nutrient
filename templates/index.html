@@ -46,8 +46,8 @@
                 {% endfor %}
             </ul>
             <!-- New section to display estimated servings -->
-            <h3>Estimated Servings:</h3>
-            <p>{{ recipe.estimated_servings }}</p>
+            <h3>Servings:</h3>
+            <p>{{ recipe.yield }}</p> <!-- Add this line to display the yield -->
             <!-- End of new section -->
         </li>
         {% endfor %}

@@ -1,9 +1,8 @@
-from flask import Flask, Blueprint, jsonify, request, render_template
+from flask import Flask, Blueprint, jsonify, request, render_template, url_for,redirect
 import requests
 import time
 from urllib.parse import quote
 from utils import clean_micro_nutrients
-from servings import estimate_servings  # Importing the estimate_servings function from servings.py
 from units import nutrient_units
 
 app = Flask(__name__)
@@ -70,7 +69,7 @@ def fetch_recipes():
     # Debugging: Print the Edamam API URL
     #print("Edamam API URL:", edamam_url)
 
-    max_recipes_to_show = 1
+    max_recipes_to_show = 10
 
     try:
         # Make the API request
@@ -90,9 +89,9 @@ def fetch_recipes():
                 image = recipe.get('image')  # Extract the image URL for the recipe
                 calories = recipe.get('calories')  # Extract the calories for the recipe
                 micro_nutrients = recipe.get('totalNutrients', {})  # Extract total nutrients
-
+                yield_value = recipe.get('yield', None)
                 # testing for bugs
-                #print("Micro-nutrients (before division):", micro_nutrients)  
+                print("Micro-nutrients (before division):", micro_nutrients)  
                 # Extracting the four types of fats
                 fatty_acids_fams = micro_nutrients.get('FAMS', {}).get('quantity', 0)
                 fatty_acids_fapu = micro_nutrients.get('FAPU', {}).get('quantity', 0)
@@ -105,12 +104,10 @@ def fetch_recipes():
                         nutrient_units[nutrient_label] = nutrient_data['unit']
                 # Clean up the micro-nutrients data
                 cleaned_micro_nutrients = clean_micro_nutrients(micro_nutrients)
-                # Estimate servings using the provided function
-                ingredient_weights = [1] * len(ingredient_lines)  # Assuming equal weights for all ingredients
-                estimated_servings = estimate_servings(ingredient_weights, calories)       
+                
                 # Calculate values per serving
-                calories_per_serving = calories / estimated_servings
-                micro_nutrients_per_serving = {label: value / estimated_servings for label, value in cleaned_micro_nutrients.items()}  
+                calories_per_serving = calories / yield_value
+                micro_nutrients_per_serving = {label: value / yield_value for label, value in cleaned_micro_nutrients.items()}  
                 # Append extracted details to the filtered_recipes list
                 filtered_recipes.append({
                     'label': label,
@@ -120,12 +117,13 @@ def fetch_recipes():
                     'image': image,
                     'calories_per_serving': calories_per_serving,
                     'micro_nutrients_per_serving': micro_nutrients_per_serving,
-                    'estimated_servings': estimated_servings,  # Add the estimated servings to the response
+                    
                     'nutrient_units': nutrient_units,
                     'fatty_acids_fams': fatty_acids_fams,
                     'fatty_acids_fapu': fatty_acids_fapu,
                     'fatty_acids_fasat': fatty_acids_fasat,
                     'fatty_acids_fatrn': fatty_acids_fatrn, 
+                    'yield': yield_value,  # Add the yield value to the response
                      
                     # Add more details as needed
                 })
@@ -179,6 +177,24 @@ def get_recipe(recipe_id):
     except requests.RequestException as e:
         # Handle network errors
         return jsonify({'error': f'Network Error: {e}'}), 500
+
+
+#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+"""@app.route('/', methods=['GET', 'POST'])
+def form():
+    if request.method == 'POST':
+        # Get sex and age from the form
+        sex = request.form.get('sex')
+        age = request.form.get('age')
+        # Redirect to the page where you input ingredients
+        return redirect(url_for('index', _anchor="content"))
+    # If it's a GET request, render the form template
+    return render_template('form.html')    """
 
 # Define index route
 @app.route('/')
