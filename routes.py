@@ -17,7 +17,7 @@ search_counts = {}
 # Function to check if a request exceeds the rate limit
 def exceeds_rate_limit(ip_address):
     current_time = time.time()
-    print(f"Current time: {current_time}")
+    #print(f"Current time: {current_time}")
 
     if ip_address not in search_counts:
         search_counts[ip_address] = [(current_time, 1)]
@@ -64,12 +64,12 @@ def fetch_recipes():
     encoded_ingredients = quote(ingredients)
     # Construct the API request URL with the encoded ingredients
     edamam_url = f'https://api.edamam.com/api/recipes/v2?type=public&q={ingredients}&app_id={edamam_app_id}&app_key={edamam_api_key}'
-    print(edamam_url)
+    #print(edamam_url)
 
     # Debugging: Print the Edamam API URL
     #print("Edamam API URL:", edamam_url)
 
-    max_recipes_to_show = 10
+    max_recipes_to_show = 1
 
     try:
         # Make the API request
@@ -91,7 +91,7 @@ def fetch_recipes():
                 micro_nutrients = recipe.get('totalNutrients', {})  # Extract total nutrients
                 yield_value = recipe.get('yield', None)
                 # testing for bugs
-                print("Micro-nutrients (before division):", micro_nutrients)  
+                #print("Micro-nutrients (before division):", micro_nutrients)  
                 # Extracting the four types of fats
                 fatty_acids_fams = micro_nutrients.get('FAMS', {}).get('quantity', 0)
                 fatty_acids_fapu = micro_nutrients.get('FAPU', {}).get('quantity', 0)
@@ -196,10 +196,32 @@ def form():
     # If it's a GET request, render the form template
     return render_template('form.html')    """
 
+# Define form route
+@app.route('/', methods=['GET', 'POST'])
+def form():
+    if request.method == 'POST':
+        # Get form data
+        sex = request.form['sex']
+        age = request.form['age']
+
+        # check for bugs
+        print("Sex:", sex)
+        print("Age:", age)
+
+        # Redirect to index page with parameters
+        return redirect(url_for('index', sex=sex, age=age))
+    return render_template('form.html')
+
+
 # Define index route
-@app.route('/')
+@app.route('/index')
 def index():
     return render_template('index.html')
+
+
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
