@@ -1,4 +1,4 @@
-def estimate_servings(ingredient_weights, total_calories, standard_calories_per_serving=500, standard_weight_per_serving=200):
+"""def estimate_servings(ingredient_weights, total_calories, standard_calories_per_serving=500, standard_weight_per_serving=200):
     # Calculate total weight of ingredients
     total_weight = sum(ingredient_weights)
     
@@ -11,4 +11,4 @@ def estimate_servings(ingredient_weights, total_calories, standard_calories_per_
     # Average the estimates from both methods
     estimated_servings = (servings_by_calories + servings_by_weight) / 2
     
-    return estimated_servings
+    return estimated_servings"""
