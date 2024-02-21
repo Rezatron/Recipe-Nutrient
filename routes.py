@@ -117,7 +117,6 @@ def fetch_recipes():
                     'image': image,
                     'calories_per_serving': calories_per_serving,
                     'micro_nutrients_per_serving': micro_nutrients_per_serving,
-                    
                     'nutrient_units': nutrient_units,
                     'fatty_acids_fams': fatty_acids_fams,
                     'fatty_acids_fapu': fatty_acids_fapu,
