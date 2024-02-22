@@ -1,9 +1,10 @@
-from flask import Flask, Blueprint, jsonify, request, render_template, url_for,redirect
+from flask import Flask, Blueprint, jsonify, request, render_template, url_for, redirect
 import requests
 import time
 from urllib.parse import quote
 from utils import clean_micro_nutrients
 from units import nutrient_units
+from rni import rni_data
 
 app = Flask(__name__)
 
@@ -212,13 +213,50 @@ def form():
     return render_template('form.html')
 
 
-# Define index route
-@app.route('/index')
+@app.route('/index', methods=['GET'])
 def index():
+    sex = request.args.get('sex')
+    age = request.args.get('age')
+
+    # Check if sex and age are provided
+    if sex and age:
+        # Convert the user's age to an integer for comparison
+        age = int(age)
+        
+        # place user in one of the groups
+        if age >= 11 and age <= 14:
+            age_group = "11-14 years"
+        elif age >= 15 and age <= 18:
+            age_group = "15-18 years"
+        elif age >= 19 and age <= 50:
+            age_group = "19-50 years"
+        else:
+            age_group = "50+ years"
+
+        # Retrieve RNI data based on sex and age from rni.py
+        if sex.lower() == 'male': #can i delete the .lower as sex is a dropdown menu?
+            if age_group in rni_data["Micronutrients"]["Males"]:
+                rni = rni_data["Micronutrients"]["Males"][age_group]
+                print("Recommended Nutrient Intake (RNI) for Male ({} years):".format(age))
+                for nutrient, value in rni.items():
+                    print("{}: {} ".format(nutrient, value, nutrient_units.get(nutrient, 'units'))) #[to make units show do print("{}: {} "... ]
+            else:
+                print("Error: RNI data not found for the specified age and sex.")
+        elif sex.lower() == 'female': #can i delete the .lower as sex is a dropdown menu?
+            if age_group in rni_data["Micronutrients"]["Females"]:
+                rni = rni_data["Micronutrients"]["Females"][age_group]
+                print("Recommended Nutrient Intake (RNI) for Female ({} years):".format(age))
+                for nutrient, value in rni.items():
+                    print("{}: {} {}".format(nutrient, value, nutrient_units.get(nutrient, 'units')))
+            else:
+                print("Error: RNI data not found for the specified age and sex.")
+        else:
+            print("Error: Invalid value for sex. Please specify 'male' or 'female'.")
+    else:
+        print("Error: Please submit age and sex to view RNI.")
+
+    # Render the index template
     return render_template('index.html')
-
-
-
 
 
 
