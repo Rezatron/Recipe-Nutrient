@@ -21,6 +21,10 @@
         <li>
             <h2>{{ recipe.label }}</h2>
             <img src="{{ recipe.image }}" alt="{{ recipe.label }}">
+            <!-- New section to display estimated servings -->
+            <h3>Servings:</h3>
+            <p>{{ recipe.yield }}</p> <!-- Add this line to display the yield -->
+            <!-- End of new section -->
             <h3>Ingredients:</h3>
             <ul>
                 {% for ingredient_line in recipe.ingredient_lines %}
@@ -45,10 +49,16 @@
                 <!-- Round the nutrient value per serving and display unit -->
                 {% endfor %}
             </ul>
-            <!-- New section to display estimated servings -->
-            <h3>Servings:</h3>
-            <p>{{ recipe.yield }}</p> <!-- Add this line to display the yield -->
-            <!-- End of new section -->
+
+            <!-- Display RNI comparison -->
+            <h3>RNI Comparison:</h3>
+            <ul>
+                {% for nutrient_label, comparison_value in comparison_to_rni.items() %}
+                <li>{{ nutrient_label }}: {{ comparison_value }}</li>
+                {% endfor %}
+            </ul>
+            <!-- End of RNI comparison -->
+            
         </li>
         {% endfor %}
     </ul>

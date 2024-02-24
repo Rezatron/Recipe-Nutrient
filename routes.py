@@ -107,9 +107,9 @@ def fetch_recipes():
                     'yield': yield_value,
                 })
 
-            return render_template('index.html', recipes=filtered_recipes)
-        else:
-            return jsonify({'error': f'Failed to fetch recipes from Edamam. Status code: {edamam_response.status_code}'}), edamam_response.status_code
+         # Pass comparison_to_rni to the template context
+        return render_template('index.html', recipes=filtered_recipes, comparison_to_rni=comparison_to_rni)
+
     except requests.RequestException as e:
         return jsonify({'error': f'Network Error: {e}'}), 500
 
@@ -152,9 +152,12 @@ def index():
     global global_rni
     global micro_nutrients_per_serving
     global comparison_to_rni
-    
+
     sex = request.args.get('sex')
     age = request.args.get('age')
+
+    # Initialize comparison_to_rni dictionary
+    comparison_to_rni = {}
 
     if sex and age:
         age = int(age)
@@ -170,35 +173,28 @@ def index():
         if sex.lower() == 'male':
             if age_group in rni_data["Micronutrients"]["Males"]:
                 global_rni = rni_data["Micronutrients"]["Males"][age_group]
-                print("global_rni set for Male ({} years):".format(age), global_rni)  # Print global_rni for debugging
 
                 # Divide micro_nutrients_per_serving by global_rni if available
                 if global_rni:
                     for nutrient_label, nutrient_value in micro_nutrients_per_serving.items():
                         if nutrient_label in global_rni:
                             comparison_to_rni[nutrient_label] = nutrient_value / global_rni[nutrient_label]
-                            print("Comparison to RNI for", nutrient_label, ":", comparison_to_rni[nutrient_label])  # Print comparison to RNI for debugging
         elif sex.lower() == 'female':
             if age_group in rni_data["Micronutrients"]["Females"]:
                 global_rni = rni_data["Micronutrients"]["Females"][age_group]
-                print("global_rni set for Female ({} years):".format(age), global_rni)  # Print global_rni for debugging
 
                 # Divide micro_nutrients_per_serving by global_rni if available
                 if global_rni:
                     for nutrient_label, nutrient_value in micro_nutrients_per_serving.items():
                         if nutrient_label in global_rni:
                             try:
-                                print("Nutrient value:", nutrient_value)
-                                print("Global RNI value:", global_rni[nutrient_label])
                                 # Calculate the percentage
                                 percentage = nutrient_value / global_rni[nutrient_label] * 100
                                 comparison_to_rni[nutrient_label] = f"{percentage:.2f}%"  # Format as percentage with 2 decimal places
-                                print("Comparison to RNI for", nutrient_label, ":", comparison_to_rni[nutrient_label])  # Print comparison to RNI for debugging
                             except Exception as e:
                                 print("Error calculating percentage for", nutrient_label, ":", e)
 
-
-
+    # Pass comparison_to_rni dictionary to the template
     return render_template('index.html', comparison_to_rni=comparison_to_rni)
 
 if __name__ == '__main__':
