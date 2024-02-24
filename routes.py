@@ -57,7 +57,7 @@ def fetch_recipes():
     edamam_api_key = '3f29819ff208a35c258fee650e32878f'
     encoded_ingredients = quote(ingredients)
     edamam_url = f'https://api.edamam.com/api/recipes/v2?type=public&q={ingredients}&app_id={edamam_app_id}&app_key={edamam_api_key}'
-    max_recipes_to_show = 1  # Define the maximum number of recipes to show
+    max_recipes_to_show = 100  # Define the maximum number of recipes to show
 
     try:
         edamam_response = requests.get(edamam_url)
@@ -191,9 +191,10 @@ def index():
                                 # Calculate the percentage
                                 percentage = nutrient_value / global_rni[nutrient_label] * 100
                                 comparison_to_rni[nutrient_label] = f"{percentage:.2f}%"  # Format as percentage with 2 decimal places
+                                #print("Percentage for", nutrient_label, ":", comparison_to_rni[nutrient_label])  # Print the calculated percentage
                             except Exception as e:
                                 print("Error calculating percentage for", nutrient_label, ":", e)
-
+                            
     # Pass comparison_to_rni dictionary to the template
     return render_template('index.html', comparison_to_rni=comparison_to_rni)
 

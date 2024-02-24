@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Recipe Suggestions</title>
 </head>
 
@@ -54,10 +55,10 @@
             <h3>RNI Comparison:</h3>
             <ul>
                 {% for nutrient_label, comparison_value in comparison_to_rni.items() %}
-                <li>{{ nutrient_label }}: {{ comparison_value }}</li>
+            <li>{{ nutrient_label }}: {{ "%0.2f" % (comparison_value * 100) }}%</li>
                 {% endfor %}
             </ul>
-            <!-- End of RNI comparison -->
+
             
         </li>
         {% endfor %}
