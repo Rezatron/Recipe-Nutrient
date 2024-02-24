@@ -10,61 +10,71 @@
 
 <body>
     <h1>Recipe Suggestions</h1>
-    <form action="/recipes" method="GET">
-        <label for="ingredients">Enter Ingredients (comma-separated):</label><br>
-        <input type="text" id="ingredients" name="ingredients"><br><br>
-        <button type="submit">Submit</button>
+    <form action="/recipes" method="GET" class="search-form">
+        <label for="ingredients" class="input-label">Enter Ingredients (comma-separated):</label><br>
+        <input type="text" id="ingredients" name="ingredients" class="input-field"><br><br>
+        <button type="submit" class="submit-button">Submit</button>
     </form>
 
     {% if recipes %}
-    <ul>
+    <ul class="recipe-list">
         {% for recipe in recipes %}
-        <li>
-            <h2>{{ recipe.label }}</h2>
-            <img src="{{ recipe.image }}" alt="{{ recipe.label }}">
-            <!-- New section to display estimated servings -->
-            <h3>Servings:</h3>
-            <p>{{ recipe.yield }}</p> <!-- Add this line to display the yield -->
-            <!-- End of new section -->
-            <h3>Ingredients:</h3>
-            <ul>
-                {% for ingredient_line in recipe.ingredient_lines %}
-                <li>{{ ingredient_line }}</li>
-                {% endfor %}
-            </ul>
-            <h3>Instructions:</h3>
-            <ol>
-                {% if recipe.url %}
-                <li><a href="{{ recipe.url }}" target="_blank">Link to Instructions</a></li>
-                {% else %}
-                <li>No instructions available</li>
-                {% endif %}
-            </ol>
-            <h3>Calories per Serving:</h3> <!-- Updated to display calories per serving -->
-            <p>{{ recipe.calories_per_serving | round }}</p> <!-- Round the calories per serving value -->
-            <h3>Micro-Nutrients per Serving:</h3> <!-- Updated to display nutrients per serving -->
-            <ul>
-                {% for nutrient_label, nutrient_value in recipe.micro_nutrients_per_serving.items() %}
-                <li>{{ nutrient_label }}: {{ nutrient_value | round }} {{ recipe.nutrient_units.get(nutrient_label, '')
-                    }}</li>
-                <!-- Round the nutrient value per serving and display unit -->
-                {% endfor %}
-            </ul>
+        <li class="recipe-item">
+            <h2 class="recipe-title">{{ recipe.label }}</h2>
+            <img src="{{ recipe.image }}" alt="{{ recipe.label }}" class="recipe-image">
+            <div class="recipe-details">
+                <h3 class="detail-title">Servings:</h3>
+                <p class="detail-value">{{ recipe.yield }}</p>
+                <h3 class="detail-title">Ingredients:</h3>
+                <ul class="ingredient-list">
+                    {% for ingredient_line in recipe.ingredient_lines %}
+                    <li class="ingredient-item">{{ ingredient_line }}</li>
+                    {% endfor %}
+                </ul>
 
-            <!-- Display RNI comparison -->
-            <h3>RNI Comparison:</h3>
-            <ul>
-                {% for nutrient_label, comparison_value in comparison_to_rni.items() %}
-            <li>{{ nutrient_label }}: {{ "%0.2f" % (comparison_value * 100) }}%</li>
-                {% endfor %}
-            </ul>
 
-            
+
+                <h3 class="detail-title">Instructions:</h3>
+                <ol class="instruction-list">
+                    {% if recipe.url %}
+                    <li><a href="{{ recipe.url }}" target="_blank" class="instruction-link">Link to Instructions</a>
+                    </li>
+                    {% else %}
+                    <li>No instructions available</li>
+                    {% endif %}
+                </ol>
+
+
+
+
+                <h3 class="detail-title">Calories per Serving:</h3>
+                <p class="detail-value">{{ recipe.calories_per_serving | round }}</p>
+
+
+
+
+                <h3 class="detail-title">Micro-Nutrients per Serving:</h3>
+                <ul class="nutrient-list">
+                    {% for nutrient_label, nutrient_value in recipe.micro_nutrients_per_serving.items() %}
+                    <li class="nutrient-item">{{ nutrient_label }}: {{ nutrient_value | round }} {{
+                        recipe.nutrient_units.get(nutrient_label, '') }}</li>
+                    {% endfor %}
+                </ul>
+
+
+
+                <h3 class="detail-title">RNI Comparison:</h3>
+                <ul class="comparison-list">
+                    {% for nutrient_label, comparison_value in comparison_to_rni.items() %}
+                    <li class="comparison-item">{{ nutrient_label }}: {{ "%0.2f" % (comparison_value * 100) }}%</li>
+                    {% endfor %}
+                </ul>
+            </div>
         </li>
         {% endfor %}
     </ul>
     {% elif error %}
-    <p>{{ error }}</p>
+    <p class="error-message">{{ error }}</p>
     {% endif %}
 </body>
 
