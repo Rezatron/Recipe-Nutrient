@@ -136,8 +136,19 @@ form {
 /* Add this CSS to hide details by default */
 .details-popup {
     display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 999;
 }
-/* Add this CSS to show details when active */
+
+/* Update the CSS for the active state */
 .details-popup.active {
     display: block;
 }
