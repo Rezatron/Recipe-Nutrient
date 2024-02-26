@@ -31,44 +31,33 @@
                     <li class="ingredient-item">{{ ingredient_line }}</li>
                     {% endfor %}
                 </ul>
-
-
-
-                <h3 class="detail-title">Instructions:</h3>
-                <ol class="instruction-list">
-                    {% if recipe.url %}
-                    <li><a href="{{ recipe.url }}" target="_blank" class="instruction-link">Link to Instructions</a>
-                    </li>
-                    {% else %}
-                    <li>No instructions available</li>
-                    {% endif %}
-                </ol>
-
-
-
-
-                <h3 class="detail-title">Calories per Serving:</h3>
-                <p class="detail-value">{{ recipe.calories_per_serving | round }}</p>
-
-
-
-
-                <h3 class="detail-title">Micro-Nutrients per Serving:</h3>
-                <ul class="nutrient-list">
-                    {% for nutrient_label, nutrient_value in recipe.micro_nutrients_per_serving.items() %}
-                    <li class="nutrient-item">{{ nutrient_label }}: {{ nutrient_value | round }} {{
-                        recipe.nutrient_units.get(nutrient_label, '') }}</li>
-                    {% endfor %}
-                </ul>
-
-
-
-                <h3 class="detail-title">RNI Comparison:</h3>
-                <ul class="comparison-list">
-                    {% for nutrient_label, comparison_value in comparison_to_rni.items() %}
-                    <li class="comparison-item">{{ nutrient_label }}: {{ "%0.2f" % (comparison_value * 100) }}%</li>
-                    {% endfor %}
-                </ul>
+                <button class="see-details-button">See more details</button> <!-- Button added here -->
+                <div class="details-popup">
+                    <h3 class="detail-title">Instructions:</h3>
+                    <ol class="instruction-list">
+                        {% if recipe.url %}
+                        <li><a href="{{ recipe.url }}" target="_blank" class="instruction-link">Link to Instructions</a>
+                        </li>
+                        {% else %}
+                        <li>No instructions available</li>
+                        {% endif %}
+                    </ol>
+                    <h3 class="detail-title">Calories per Serving:</h3>
+                    <p class="detail-value">{{ recipe.calories_per_serving | round }}</p>
+                    <h3 class="detail-title">Micro-Nutrients per Serving:</h3>
+                    <ul class="nutrient-list">
+                        {% for nutrient_label, nutrient_value in recipe.micro_nutrients_per_serving.items() %}
+                        <li class="nutrient-item">{{ nutrient_label }}: {{ nutrient_value | round }} {{
+                            recipe.nutrient_units.get(nutrient_label, '') }}</li>
+                        {% endfor %}
+                    </ul>
+                    <h3 class="detail-title">RNI Comparison:</h3>
+                    <ul class="comparison-list">
+                        {% for nutrient_label, comparison_value in comparison_to_rni.items() %}
+                        <li class="comparison-item">{{ nutrient_label }}: {{ "%0.2f" % (comparison_value * 100) }}%</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </li>
         {% endfor %}
@@ -76,6 +65,8 @@
     {% elif error %}
     <p class="error-message">{{ error }}</p>
     {% endif %}
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 
 </html>

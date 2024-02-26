@@ -57,7 +57,7 @@ def fetch_recipes():
     edamam_api_key = '3f29819ff208a35c258fee650e32878f'
     encoded_ingredients = quote(ingredients)
     edamam_url = f'https://api.edamam.com/api/recipes/v2?type=public&q={ingredients}&app_id={edamam_app_id}&app_key={edamam_api_key}'
-    max_recipes_to_show = 100  # Define the maximum number of recipes to show
+    max_recipes_to_show = 2  # Define the maximum number of recipes to show
 
     try:
         edamam_response = requests.get(edamam_url)
