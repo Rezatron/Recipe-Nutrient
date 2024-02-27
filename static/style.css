@@ -118,22 +118,6 @@ form {
 }
 
 /* Initially hide details toggle */
-.details-toggle {
-    display: none;
-}
-
-/* Show details toggle when the show-details class is applied */
-.show-details {
-    display: block;
-}
-
-/* Recipe item hover effect */
-.recipe-item:hover {
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    transform: translateY(-5px);
-    transition: all 0.3s ease;
-}
-/* Add this CSS to hide details by default */
 .details-popup {
     display: none;
     position: fixed;
@@ -146,9 +130,70 @@ form {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     z-index: 999;
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    max-height: 80%;
+    /* Set a maximum height for the popup */
+    width: 40%;
+    /* Set a width for the popup */
 }
 
 /* Update the CSS for the active state */
 .details-popup.active {
     display: block;
+}
+
+/* Add styles for nutrient items and RNI comparison percentage */
+.nutrient-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.nutrient-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.nutrient-label {
+    font-weight: bold;
+}
+
+.rni-percentage {
+    font-style: italic;
+}
+
+/* Close button styles */
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    z-index: 1000;
+    /* Ensure button is above overlay and popup */
+}
+
+.close-button:hover {
+    color: #333;
+    /* Change color on hover if needed */
+}
+
+/* Overlay styles */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent black */
+    z-index: 998;
+    /* Ensure overlay is behind popup */
+    display: none;
+    /* Initially hidden */
 }

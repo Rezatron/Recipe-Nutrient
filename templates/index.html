@@ -33,6 +33,7 @@
                 </ul>
                 <button class="see-details-button">See more details</button> <!-- Button added here -->
                 <div class="details-popup">
+                    <button class="close-button" aria-label="Close popup">&times;</button> <!-- Close button -->
                     <h3 class="detail-title">Instructions:</h3>
                     <ol class="instruction-list">
                         {% if recipe.url %}
@@ -47,14 +48,15 @@
                     <h3 class="detail-title">Micro-Nutrients per Serving:</h3>
                     <ul class="nutrient-list">
                         {% for nutrient_label, nutrient_value in recipe.micro_nutrients_per_serving.items() %}
-                        <li class="nutrient-item">{{ nutrient_label }}: {{ nutrient_value | round }} {{
-                            recipe.nutrient_units.get(nutrient_label, '') }}</li>
-                        {% endfor %}
-                    </ul>
-                    <h3 class="detail-title">RNI Comparison:</h3>
-                    <ul class="comparison-list">
-                        {% for nutrient_label, comparison_value in comparison_to_rni.items() %}
-                        <li class="comparison-item">{{ nutrient_label }}: {{ "%0.2f" % (comparison_value * 100) }}%</li>
+                        <li class="nutrient-item">
+                            <span class="nutrient-label">{{ nutrient_label }}:</span>
+                            <span class="nutrient-value">{{ nutrient_value | round }} {{
+                                recipe.nutrient_units.get(nutrient_label, '') }}</span>
+                            {% if nutrient_label in comparison_to_rni %}
+                            <span class="rni-percentage">{{ "%0.2f" % (comparison_to_rni[nutrient_label] * 100)
+                                }}%</span>
+                            {% endif %}
+                        </li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -65,6 +67,9 @@
     {% elif error %}
     <p class="error-message">{{ error }}</p>
     {% endif %}
+
+    <!-- Add popup overlay element -->
+    <div class="popup-overlay"></div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
