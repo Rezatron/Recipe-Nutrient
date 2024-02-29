@@ -1,0 +1,1 @@
+trying to add protein rni to rni_comparison -- dont think itll work due to 

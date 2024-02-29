@@ -53,12 +53,13 @@
                             <span class="nutrient-value">{{ nutrient_value | round }} {{
                                 recipe.nutrient_units.get(nutrient_label, '') }}</span>
                             {% if nutrient_label in comparison_to_rni %}
-                            <span class="rni-percentage">{{ "%0.2f" % (comparison_to_rni[nutrient_label] * 100)
+                            <span class="rni-percentage">{{ "%0.2f" % (comparison_to_rni[nutrient_label] *100)
                                 }}%</span>
                             {% endif %}
                         </li>
                         {% endfor %}
                     </ul>
+                    
                 </div>
             </div>
         </li>

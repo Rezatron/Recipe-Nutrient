@@ -57,7 +57,7 @@ def fetch_recipes():
     edamam_api_key = '3f29819ff208a35c258fee650e32878f'
     encoded_ingredients = quote(ingredients)
     edamam_url = f'https://api.edamam.com/api/recipes/v2?type=public&q={ingredients}&app_id={edamam_app_id}&app_key={edamam_api_key}'
-    max_recipes_to_show = 2  # Define the maximum number of recipes to show
+    max_recipes_to_show = 1  # Define the maximum number of recipes to show
 
     try:
         edamam_response = requests.get(edamam_url)
@@ -75,6 +75,8 @@ def fetch_recipes():
                 micro_nutrients = recipe.get('totalNutrients', {})
                 yield_value = recipe.get('yield', None)
 
+
+                
                 # Iterate through micro_nutrients and add units dynamically
                 for nutrient_label, nutrient_data in micro_nutrients.items():
                     if 'unit' in nutrient_data:
@@ -86,13 +88,14 @@ def fetch_recipes():
                 # Calculate values per serving
                 calories_per_serving = calories / yield_value
                 micro_nutrients_per_serving = {label: value / yield_value for label, value in cleaned_micro_nutrients.items()}  
-
+                print(micro_nutrients_per_serving) #debug
                 # Divide micro_nutrients_per_serving by global_rni if available
                 if global_rni:
                     for nutrient_label, nutrient_value in micro_nutrients_per_serving.items():
                         if nutrient_label in global_rni:
                             comparison_to_rni[nutrient_label] = nutrient_value / global_rni[nutrient_label]
                             print("Comparison to RNI for", nutrient_label, ":", comparison_to_rni[nutrient_label])  # Print comparison to RNI for debugging
+
 
                 # Append extracted details to the filtered_recipes list
                 filtered_recipes.append({
@@ -142,7 +145,8 @@ def form():
     if request.method == 'POST':
         sex = request.form['sex']
         age = request.form['age']
-        return redirect(url_for('index', sex=sex, age=age))
+        weight = request.form['weight']
+        return redirect(url_for('index', sex=sex, age=age, weight=weight))
     return render_template('form.html')
 
 
@@ -155,12 +159,20 @@ def index():
 
     sex = request.args.get('sex')
     age = request.args.get('age')
-
+    weight = request.args.get('weight')
     # Initialize comparison_to_rni dictionary
     comparison_to_rni = {}
-
-    if sex and age:
+    print("Accessing the index route")
+    if sex and age and weight:
         age = int(age)
+        weight = float(weight)
+
+        # Calculate protein RNI
+        protein_rni = 0.75 * weight
+        
+        print("Protein RNI:", protein_rni)
+
+        # Determine age group
         if age >= 11 and age <= 14:
             age_group = "11-14 years"
         elif age >= 15 and age <= 18:
@@ -170,11 +182,12 @@ def index():
         else:
             age_group = "50+ years"
 
+        # Determine sex group and retrieve corresponding RNI data
         if sex.lower() == 'male':
             if age_group in rni_data["Micronutrients"]["Males"]:
                 global_rni = rni_data["Micronutrients"]["Males"][age_group]
 
-                # Divide micro_nutrients_per_serving by global_rni if available
+                # Calculate micro-nutrient comparison to RNI
                 if global_rni:
                     for nutrient_label, nutrient_value in micro_nutrients_per_serving.items():
                         if nutrient_label in global_rni:
@@ -183,20 +196,33 @@ def index():
             if age_group in rni_data["Micronutrients"]["Females"]:
                 global_rni = rni_data["Micronutrients"]["Females"][age_group]
 
-                # Divide micro_nutrients_per_serving by global_rni if available
-                if global_rni:
-                    for nutrient_label, nutrient_value in micro_nutrients_per_serving.items():
-                        if nutrient_label in global_rni:
-                            try:
-                                # Calculate the percentage
-                                percentage = nutrient_value / global_rni[nutrient_label] * 100
-                                comparison_to_rni[nutrient_label] = f"{percentage:.2f}%"  # Format as percentage with 2 decimal places
-                                #print("Percentage for", nutrient_label, ":", comparison_to_rni[nutrient_label])  # Print the calculated percentage
-                            except Exception as e:
-                                print("Error calculating percentage for", nutrient_label, ":", e)
-                            
-    # Pass comparison_to_rni dictionary to the template
-    return render_template('index.html', comparison_to_rni=comparison_to_rni)
+                # Calculate micro-nutrient comparison to RNI
+
+        # Calculate protein intake from the meal
+        protein_intake = micro_nutrients_per_serving.get('Protein', 0)
+
+        # Calculate the percentage of protein RNI compared to the protein intake from the meal
+        if protein_intake != 0:  # Avoid division by zero
+            protein_rni_percentage = (protein_intake / protein_rni) 
+            comparison_to_rni['Protein'] = protein_rni_percentage
+        
+        # Add protein RNI to comparison_to_rni dictionary
+        comparison_to_rni['Protein_RNI'] = protein_rni  # Add this line
+
+        # Pass comparison_to_rni dictionary to the template
+        return render_template('index.html', comparison_to_rni=comparison_to_rni)
+    else:
+        # Handle case where required parameters are missing
+        return 'Missing required parameters', 400  # Return an error response with status code 400
+
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+"""PROTEIN RNI NOTES
+
+
+
+"""
