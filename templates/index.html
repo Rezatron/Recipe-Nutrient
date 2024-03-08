@@ -13,6 +13,10 @@
     <form action="/recipes" method="GET" class="search-form">
         <label for="ingredients" class="input-label">Enter Ingredients (comma-separated):</label><br>
         <input type="text" id="ingredients" name="ingredients" class="input-field"><br><br>
+        <input type="hidden" name="sex" value="{{ request.args.get('sex') }}">
+        <input type="hidden" name="age" value="{{ request.args.get('age') }}">
+        <input type="hidden" name="weight" value="{{ request.args.get('weight') }}">
+
         <button type="submit" class="submit-button">Submit</button>
     </form>
 

@@ -1,1 +1,3 @@
-trying to add protein rni to rni_comparison -- dont think itll work due to 
+problems with protein rni comparison... seems to not be rendering after the second search of ingredients... 
+rni comparison for other nutrients work but not protein... the form data is not being lost... or is it that only the "rni_comparison" dict is being rendered?
+when protein rni comparison was in index it was being calculated after form submission.. moved to fetch recipe 
