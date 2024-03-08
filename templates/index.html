@@ -19,7 +19,14 @@
 
         <button type="submit" class="submit-button">Submit</button>
     </form>
-
+    <body>
+        <p>User Details:</p>
+        <ul>
+            <li>Sex: {{ sex }}</li>
+            <li>Age: {{ age }}</li>
+            <li>Weight: {{ weight }}</li>
+        </ul>
+    </body>
     {% if recipes %}
     <ul class="recipe-list">
         {% for recipe in recipes %}
