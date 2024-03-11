@@ -19,14 +19,14 @@
 
         <button type="submit" class="submit-button">Submit</button>
     </form>
-    <body>
-        <p>User Details:</p>
-        <ul>
-            <li>Sex: {{ sex }}</li>
-            <li>Age: {{ age }}</li>
-            <li>Weight: {{ weight }}</li>
-        </ul>
-    </body>
+
+    <p>User Details:</p>
+    <ul>
+        <li>Sex: {{ sex }}</li>
+        <li>Age: {{ age }}</li>
+        <li>Weight: {{ weight }}</li>
+    </ul>
+
     {% if recipes %}
     <ul class="recipe-list">
         {% for recipe in recipes %}
@@ -63,14 +63,13 @@
                             <span class="nutrient-label">{{ nutrient_label }}:</span>
                             <span class="nutrient-value">{{ nutrient_value | round }} {{
                                 recipe.nutrient_units.get(nutrient_label, '') }}</span>
-                            {% if nutrient_label in comparison_to_rni %}
-                            <span class="rni-percentage">{{ "%0.2f" % (comparison_to_rni[nutrient_label] *100)
-                                }}%</span>
+                            {% if nutrient_label in recipe.comparison_to_rni %}
+                            <span class="rni-percentage">({{ recipe.comparison_to_rni[nutrient_label]|round(2)
+                                }}%)</span>
                             {% endif %}
                         </li>
                         {% endfor %}
                     </ul>
-                    
                 </div>
             </div>
         </li>
