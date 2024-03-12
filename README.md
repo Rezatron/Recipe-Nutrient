@@ -7,3 +7,12 @@ SOLVED: created separate function for rni comparison to be calculated. then pass
 ISSUE: micro_nutrient_per_serving not iterating over each recipe (only loops 1 recipe then copies n pastes the info to other recipe)
 SOLVED: initialise micro_nutrients_per_serving INSIDE loop of recipes being fetched 
         once initalised, micronutrients are calculated and stored in dict then rendered to template
+
+
+
+
+SORT BY LEAST AMOUNT OF MISSING INGREDIENT LINES
+started?YES
+set(x['recipe']['ingredientLines']) - set(ingredients.split(',')):              ###### ingredient lines from recipe (-) user's input ingredients
+len(...)                                                                        ###### counts the above
+

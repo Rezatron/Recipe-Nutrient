@@ -18,7 +18,6 @@ search_counts = {}
 
 
 def fetch_recipes(ingredients):
-    client_ip = request.remote_addr
     if not ingredients:
         return jsonify({'error': 'Ingredients not provided'}), 400
 
@@ -31,14 +30,22 @@ def fetch_recipes(ingredients):
     try:
         edamam_response = requests.get(edamam_url)
         edamam_response.raise_for_status()
-
         edamam_recipes = edamam_response.json()
+
+        # Sort recipes based on the number of missing ingredients
+        sorted_recipes = sorted(edamam_recipes['hits'], key=lambda x: len(set(x['recipe']['ingredientLines']) - set(ingredients.split(','))))       
+        #print("Sorted Recipes:", sorted_recipes)#debug
+
+        # Take only the required number of recipes to show
+        sorted_recipes = sorted_recipes[:max_recipes_to_show]
+        
         filtered_recipes = []
 
-        for hit in edamam_recipes['hits'][:max_recipes_to_show]:
+        for hit in sorted_recipes:
             recipe = hit['recipe']
             label = recipe['label']
             ingredient_lines = recipe['ingredientLines']
+            print(f"Recipe: {label}, Number of Ingredient Lines: {len(ingredient_lines)}")  #    for sorting recipes based on missing ingredients
             url = recipe.get('url')
             image = recipe.get('image')
             calories = recipe.get('calories')
@@ -46,12 +53,11 @@ def fetch_recipes(ingredients):
             yield_value = recipe.get('yield', None)
 
             cleaned_micro_nutrients = clean_micro_nutrients(micro_nutrients)
-
             calories_per_serving = calories / yield_value
 
             micro_nutrients_per_serving = {}
             for nutrient_label, nutrient_value in cleaned_micro_nutrients.items():
-                if nutrient_label != 'Water':
+                if nutrient_label != 'Water':  # Exclude water from micro nutrients
                     micro_nutrients_per_serving[nutrient_label] = nutrient_value / yield_value
 
             comparison_to_rni = calculate_comparison_to_rni(micro_nutrients_per_serving)
@@ -80,6 +86,7 @@ def fetch_recipes(ingredients):
     except Exception as e:
         logging.error(f'Error processing recipes: {e}')
         return jsonify({'error': 'Failed to process recipes'}), 500
+
 
 
 def calculate_comparison_to_rni(micro_nutrients_per_serving):
