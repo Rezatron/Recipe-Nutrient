@@ -4,7 +4,7 @@ when protein rni comparison was in index it was being calculated after form subm
 SOLVED: created separate function for rni comparison to be calculated. then passed onto template.
 
 
-ISSUE: micro_nutrient_per_serving not iterating over each recipe (only loops 1 recipe then copies n pastes the info to other recipe)
+ISSUE: micro_nutrient_per_serving not iterating over each recipe (only loops 1 recipe then copies n pastes the info to the rest of the recipes)
 SOLVED: initialise micro_nutrients_per_serving INSIDE loop of recipes being fetched 
         once initalised, micronutrients are calculated and stored in dict then rendered to template
 

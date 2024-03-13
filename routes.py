@@ -17,7 +17,7 @@ micro_nutrients_per_serving = {}
 search_counts = {}
 
 
-def fetch_recipes(ingredients):
+def fetch_recipes(ingredients, meal_type=None, diet_label=None, health_label=None, glycemic_index=None):
     if not ingredients:
         return jsonify({'error': 'Ingredients not provided'}), 400
 
@@ -26,6 +26,15 @@ def fetch_recipes(ingredients):
     encoded_ingredients = quote(ingredients)
     edamam_url = f'https://api.edamam.com/api/recipes/v2?type=public&q={encoded_ingredients}&app_id={edamam_app_id}&app_key={edamam_api_key}'
     max_recipes_to_show = 2
+    # search filters
+    if meal_type:
+        edamam_url += f'&mealType={meal_type}'
+    if diet_label:
+        edamam_url += f'&diet={diet_label}'
+    if health_label:
+        edamam_url += f'&health={health_label}'
+    if glycemic_index:
+        edamam_url += f'&glycemicIndex={glycemic_index}'
 
     try:
         edamam_response = requests.get(edamam_url)
@@ -129,7 +138,11 @@ def calculate_comparison_to_rni(micro_nutrients_per_serving):
 @app.route('/recipes', methods=['GET'])
 def recipes():
     ingredients = request.args.get('ingredients')
-    return fetch_recipes(ingredients)
+    meal_type = request.args.get('meal_type')
+    diet_label = request.args.get('diet_label')
+    health_label = request.args.get('health_label')
+    glycemic_index = request.args.get('glycemic_index')
+    return fetch_recipes(ingredients, meal_type, diet_label, health_label, glycemic_index)
 
 
 @app.route('/', methods=['GET', 'POST'])

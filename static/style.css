@@ -197,3 +197,48 @@ form {
     display: none;
     /* Initially hidden */
 }
+
+/* FILTERS */
+/* Input container */
+.input-container {
+    display: inline-block;
+    margin-right: 10px;
+    /* Adjust as needed */
+}
+
+/* Input label */
+.input-label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Input field */
+.input-field {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 200px;
+    /* Adjust width as needed */
+}
+
+/* Dropdown field */
+.dropdown-field {
+    width: 150px;
+    /* Adjust width as needed */
+}
+
+/* Submit button */
+.submit-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}

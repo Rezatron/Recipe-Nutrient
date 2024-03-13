@@ -11,8 +11,60 @@
 <body>
     <h1>Recipe Suggestions</h1>
     <form action="/recipes" method="GET" class="search-form">
-        <label for="ingredients" class="input-label">Enter Ingredients (comma-separated):</label><br>
-        <input type="text" id="ingredients" name="ingredients" class="input-field"><br><br>
+        <!-- Ingredients input field -->
+        <div class="input-container">
+            <label for="ingredients" class="input-label">Enter Ingredients (comma-separated):</label><br>
+            <input type="text" id="ingredients" name="ingredients" class="input-field">
+        </div><br><br>
+
+        <!-- Filters container -->
+        <div class="filters-container">
+            <!-- Dropdown for meal types -->
+            <div class="input-container">
+                <label for="meal_type" class="input-label">Meal Type:</label>
+                <select id="meal_type" name="meal_type" class="input-field dropdown-field">
+                    <option value="">Any</option>
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                </select>
+            </div>
+
+            <!-- Dropdown for diet labels -->
+            <div class="input-container">
+                <label for="diet_label" class="input-label">Diet Label:</label>
+                <select id="diet_label" name="diet_label" class="input-field dropdown-field">
+                    <option value="">Any</option>
+                    <option value="balanced">Balanced</option>
+                    <option value="high-protein">High-Protein</option>
+                    <option value="low-carb">Low-Carb</option>
+                </select>
+            </div>
+
+            <!-- Dropdown for health labels -->
+            <div class="input-container">
+                <label for="health_label" class="input-label">Health Label:</label>
+                <select id="health_label" name="health_label" class="input-field dropdown-field">
+                    <option value="">Any</option>
+                    <option value="vegan">Vegan</option>
+                    <option value="vegetarian">Vegetarian</option>
+                    <option value="paleo">Paleo</option>
+                </select>
+            </div>
+
+            <!-- Dropdown for glycemic index -->
+            <div class="input-container">
+                <label for="glycemic_index" class="input-label">Glycemic Index:</label>
+                <select id="glycemic_index" name="glycemic_index" class="input-field dropdown-field">
+                    <option value="">Any</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+            </div>
+        </div><br><br>
+
+        <!-- Hidden fields for user details -->
         <input type="hidden" name="sex" value="{{ request.args.get('sex') }}">
         <input type="hidden" name="age" value="{{ request.args.get('age') }}">
         <input type="hidden" name="weight" value="{{ request.args.get('weight') }}">
