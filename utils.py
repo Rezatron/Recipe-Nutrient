@@ -1,12 +1,3 @@
-
-
-
-
-
-
-
-
-
 def clean_micro_nutrients(data):
     cleaned_micro_nutrients = {}
     for key, value in data.items():

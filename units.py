@@ -1,9 +1,3 @@
-
-
-
-
-
-
 nutrient_units = {
     'Energy': 'kcal',
     'Fat': 'g',

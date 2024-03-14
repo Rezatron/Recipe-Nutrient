@@ -21,11 +21,11 @@ def fetch_recipes(ingredients, meal_type=None, diet_label=None, health_label=Non
     if not ingredients:
         return jsonify({'error': 'Ingredients not provided'}), 400
 
-    edamam_app_id = 'a076d143'
-    edamam_api_key = '563ffb2adf60f60f21d31052e0aa7d33'
+    edamam_app_id = 'APP_ID_HERE'
+    edamam_api_key = 'API_KEY_HERE'
     encoded_ingredients = quote(ingredients)
     edamam_url = f'https://api.edamam.com/api/recipes/v2?type=public&q={encoded_ingredients}&app_id={edamam_app_id}&app_key={edamam_api_key}'
-    max_recipes_to_show = 2
+    max_recipes_to_show = 10
     # search filters
     if meal_type:
         edamam_url += f'&mealType={meal_type}'
@@ -54,7 +54,7 @@ def fetch_recipes(ingredients, meal_type=None, diet_label=None, health_label=Non
             recipe = hit['recipe']
             label = recipe['label']
             ingredient_lines = recipe['ingredientLines']
-            print(f"Recipe: {label}, Number of Ingredient Lines: {len(ingredient_lines)}")  #    for sorting recipes based on missing ingredients
+            print(f"Recipe: {label}, Number of Ingredient Lines: {len(ingredient_lines)}")  #  debug
             url = recipe.get('url')
             image = recipe.get('image')
             calories = recipe.get('calories')
@@ -66,7 +66,7 @@ def fetch_recipes(ingredients, meal_type=None, diet_label=None, health_label=Non
 
             micro_nutrients_per_serving = {}
             for nutrient_label, nutrient_value in cleaned_micro_nutrients.items():
-                if nutrient_label != 'Water':  # Exclude water from micro nutrients
+                if nutrient_label != 'Water':  # Excluding
                     micro_nutrients_per_serving[nutrient_label] = nutrient_value / yield_value
 
             comparison_to_rni = calculate_comparison_to_rni(micro_nutrients_per_serving)

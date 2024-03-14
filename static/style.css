@@ -242,3 +242,31 @@ form {
 .submit-button:hover {
     background-color: #0056b3;
 }
+
+
+/* CSS styles for the "Micro-Nutrients per Serving" section */
+.nutrient-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.nutrient-table th,
+.nutrient-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.nutrient-table th {
+    background-color: #f2f2f2;
+}
+
+.nutrient-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.nutrient-table tr:hover {
+    background-color: #ddd;
+}
+
