@@ -16,9 +16,6 @@ The application calculates the Recommended Nutrient Intake (RNI) for protein bas
 
 Protein RNI = User's weight * 0.75
 
-vbnet
-
-
 This calculated value represents the recommended daily intake of protein for the user. The application then compares this value to the protein content of the food to determine the percentage of the RNI fulfilled by the food.
 
 **Note:** To use the Edamam API for recipe data, you'll need to sign up for an API key and ID on the Edamam website. Visit Edamam's website to sign up and obtain your credentials.
@@ -41,6 +38,16 @@ This calculated value represents the recommended daily intake of protein for the
 
 Contributions to this project are welcome! If you encounter any issues, have suggestions for improvements, or would like to contribute new features, please feel free to submit a pull request or open an issue on GitHub.
 
+## Download and Use
+
+To use this application, follow these steps:
+
+1. Clone the repository to your local machine.
+2. Sign up for an API key and ID on the Edamam website.
+3. Replace the placeholders in the code with your API key and ID.
+4. Run the application locally or deploy it to a web server.
+5. Access the application through your web browser and start exploring recipes!
+
 ## Troubleshooting and Solutions
 
 In this section, I document common errors and challenges encountered during development and how they were resolved.
@@ -59,12 +66,3 @@ In this section, I document common errors and challenges encountered during deve
 - Implement macronutrient RNI
 - Add filters to find recipes rich in specific nutrients
 
-## Download and Use
-
-To use this application, follow these steps:
-
-1. Clone the repository to your local machine.
-2. Sign up for an API key and ID on the Edamam website.
-3. Replace the placeholders in the code with your API key and ID.
-4. Run the application locally or deploy it to a web server.
-5. Access the application through your web browser and start exploring recipes!
