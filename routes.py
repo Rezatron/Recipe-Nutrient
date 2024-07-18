@@ -8,7 +8,7 @@ import logging
 from collections import defaultdict
 import time
 app = Flask(__name__)
-
+#-- python routes.py -- (run app)
 logging.basicConfig(level=logging.INFO)
 
 SEARCH_LIMIT = 1
@@ -21,11 +21,12 @@ def fetch_recipes(ingredients, meal_type=None, diet_label=None, health_label=Non
     if not ingredients:
         return jsonify({'error': 'Ingredients not provided'}), 400
 
-    edamam_app_id = 'APP_ID_HERE'
-    edamam_api_key = 'API_KEY_HERE'
+    edamam_app_id = 'a076d143'
+    edamam_api_key = 'f6104daccfee52358fc65ceaa927bdc4'
+
     encoded_ingredients = quote(ingredients)
     edamam_url = f'https://api.edamam.com/api/recipes/v2?type=public&q={encoded_ingredients}&app_id={edamam_app_id}&app_key={edamam_api_key}'
-    max_recipes_to_show = 10
+    max_recipes_to_show = 20
     # search filters
     if meal_type:
         edamam_url += f'&mealType={meal_type}'

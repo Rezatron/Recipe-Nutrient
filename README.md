@@ -65,4 +65,5 @@ In this section, I document common errors and challenges encountered during deve
 - Create function to save and combine recipes to count nutrients for the whole day
 - Implement macronutrient RNI
 - Add filters to find recipes rich in specific nutrients
-
+- dont show nutrients if they are 0
+- fix groups (carbs - fibre/sugars....fats - trans/mono/saturated)
