@@ -24,7 +24,7 @@ This calculated value represents the recommended daily intake of protein for the
 
 - **Home Page:** Upon accessing the application, users are prompted to fill out a form with their sex, age, and weight. This information is used to determine the user's RNI group.
   
-- **Recipe Search:** Users can enter ingredients and optional filters such as meal type, diet label, health label, and glycemic index to search for recipes.
+- **Recipe Search:** Users can enter ingredients and optional filters such as meal type, diet label and health label index to search for recipes.
   
 - **Recipe Results:** After submitting the search criteria, recipes are displayed based on the least amount of missing ingredients. Each recipe includes nutritional information and a comparison to the user's RNI group, including the percentage of the RNI fulfilled for protein.
 

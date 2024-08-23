@@ -1,3 +1,4 @@
+import os
 from flask import Flask, jsonify, request, render_template, url_for, redirect
 import requests
 from urllib.parse import quote
@@ -7,9 +8,12 @@ from rni import rni_data
 import logging
 from collections import defaultdict
 import time
+from dotenv import load_dotenv
 app = Flask(__name__)
 #-- python routes.py -- (run app)
 logging.basicConfig(level=logging.INFO)
+
+load_dotenv()
 
 SEARCH_LIMIT = 1
 TIME_WINDOW = 5
@@ -17,15 +21,16 @@ micro_nutrients_per_serving = {}
 search_counts = {}
 
 
-def fetch_recipes(ingredients, meal_type=None, diet_label=None, health_label=None, glycemic_index=None):
+def fetch_recipes(ingredients, meal_type=None, diet_label=None, health_label=None):
     if not ingredients:
         return jsonify({'error': 'Ingredients not provided'}), 400
 
-    edamam_app_id = 'a076d143'
-    edamam_api_key = 'f6104daccfee52358fc65ceaa927bdc4'
+    edamam_app_id = os.getenv('EDAMAM_APP_ID')
+    edamam_api_key = os.getenv('EDAMAM_API_KEY')
 
     encoded_ingredients = quote(ingredients)
-    edamam_url = f'https://api.edamam.com/api/recipes/v2?type=public&q={encoded_ingredients}&app_id={edamam_app_id}&app_key={edamam_api_key}'
+    edamam_url = (f'https://api.edamam.com/api/recipes/v2?type=public&q={encoded_ingredients}'
+                  f'&app_id={edamam_app_id}&app_key={edamam_api_key}')    
     max_recipes_to_show = 20
     # search filters
     if meal_type:
@@ -34,8 +39,6 @@ def fetch_recipes(ingredients, meal_type=None, diet_label=None, health_label=Non
         edamam_url += f'&diet={diet_label}'
     if health_label:
         edamam_url += f'&health={health_label}'
-    if glycemic_index:
-        edamam_url += f'&glycemicIndex={glycemic_index}'
 
     try:
         edamam_response = requests.get(edamam_url)
@@ -43,19 +46,17 @@ def fetch_recipes(ingredients, meal_type=None, diet_label=None, health_label=Non
         edamam_recipes = edamam_response.json()
 
         # Sort recipes based on the number of missing ingredients
-        sorted_recipes = sorted(edamam_recipes['hits'], key=lambda x: len(set(x['recipe']['ingredientLines']) - set(ingredients.split(','))))       
-        #print("Sorted Recipes:", sorted_recipes)#debug
+        sorted_recipes = sorted(edamam_recipes['hits'], key=lambda x: len(set(x['recipe']['ingredientLines']) - set(ingredients.split(','))))
 
         # Take only the required number of recipes to show
         sorted_recipes = sorted_recipes[:max_recipes_to_show]
-        
+
         filtered_recipes = []
 
         for hit in sorted_recipes:
             recipe = hit['recipe']
             label = recipe['label']
             ingredient_lines = recipe['ingredientLines']
-            print(f"Recipe: {label}, Number of Ingredient Lines: {len(ingredient_lines)}")  #  debug
             url = recipe.get('url')
             image = recipe.get('image')
             calories = recipe.get('calories')
@@ -96,6 +97,7 @@ def fetch_recipes(ingredients, meal_type=None, diet_label=None, health_label=Non
     except Exception as e:
         logging.error(f'Error processing recipes: {e}')
         return jsonify({'error': 'Failed to process recipes'}), 500
+
 
 
 
@@ -142,8 +144,7 @@ def recipes():
     meal_type = request.args.get('meal_type')
     diet_label = request.args.get('diet_label')
     health_label = request.args.get('health_label')
-    glycemic_index = request.args.get('glycemic_index')
-    return fetch_recipes(ingredients, meal_type, diet_label, health_label, glycemic_index)
+    return fetch_recipes(ingredients, meal_type, diet_label, health_label)
 
 
 @app.route('/', methods=['GET', 'POST'])
