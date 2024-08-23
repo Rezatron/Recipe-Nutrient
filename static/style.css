@@ -270,3 +270,50 @@ form {
     background-color: #ddd;
 }
 
+.sub-group {
+    padding-left: 20px;
+    font-style: italic;
+}
+/* Ensure the table takes the full width of its container */
+.macronutrient-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    /* This makes the table layout fixed and prevents gaps */
+}
+
+.macronutrient-table th,
+.macronutrient-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    overflow: hidden;
+    /* Prevent overflow issues */
+}
+
+/* Style table headers */
+.macronutrient-table th {
+    background-color: #f2f2f2;
+}
+
+/* Ensure the first column has normal font weight */
+.macronutrient-table td:first-child {
+    font-weight: normal;
+}
+
+/* Ensure cells align properly */
+.macronutrient-table td {
+    vertical-align: top;
+}
+
+/* Adjust the width of the columns */
+.nutrient-column {
+    width: 50%;
+    /* Adjust as needed */
+}
+
+.amount-column {
+    width: 50%;
+    /* Adjust as needed */
+}
+
