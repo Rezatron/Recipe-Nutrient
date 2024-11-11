@@ -5,23 +5,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Age and Sex Form</title>
+    <style>
+        /* Reset default browser styles */
+        body, h1, h2, h3, p, ul, ol, li {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Set font family and size */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Form container */
+        form {
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #007aff;
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.2);
+            outline: none;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            font-size: 1.1em;
+            background-color: #007aff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #005bb5;
+            box-shadow: 0 4px 12px rgba(0, 91, 181, 0.2);
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Enter Your Age and Sex</h1>
     <form action="/" method="post">
+        <h1>Enter Your Age and Sex</h1>
         <label for="age">Age:</label>
-        <input type="number" id="age" name="age" required><br><br>
+        <input type="number" id="age" name="age" required>
 
         <label for="sex">Sex:</label>
         <select id="sex" name="sex" required>
+            <option value="" disabled selected>Select your sex</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
             <option value="other">Other</option>
-        </select><br><br>
+        </select>
 
         <label for="weight">Weight (kg):</label>
-        <input type="number" id="weight" name="weight" required><br><br>
+        <input type="number" id="weight" name="weight" required>
         
         <input type="submit" value="Submit">
     </form>
