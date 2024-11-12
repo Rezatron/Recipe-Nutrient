@@ -404,7 +404,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Vitamin E</td>
+                                <td>Vitamin E*</td>
                                 <td>{% if recipe.micro_nutrients_per_serving['Vitamin E'] is defined %}{{ recipe.micro_nutrients_per_serving['Vitamin E'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Vitamin E', '') }}</td>
                                 <td>
                                     {% if 'Vitamin E' in recipe.comparison_to_rni %}
@@ -415,16 +415,24 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Vitamin K</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Vitamin K'] is defined %}{{ recipe.micro_nutrients_per_serving['Vitamin K'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Vitamin K', '') }}</td>
+                                <td>Vitamin K*</td>
+                                <td>
+                                    {% if recipe.micro_nutrients_per_serving['Vitamin K'] is defined %}
+                                        {{ recipe.micro_nutrients_per_serving['Vitamin K'] | round }} 
+                                    {% else %}
+                                        &nbsp;
+                                    {% endif %}
+                                    {{ recipe.nutrient_units.get('Vitamin K', '') }}
+                                </td>
                                 <td>
                                     {% if 'Vitamin K' in recipe.comparison_to_rni %}
-                                    {{ recipe.comparison_to_rni['Vitamin K'] | default('') | round(2) }}%
+                                        {{ recipe.comparison_to_rni['Vitamin K']['percentage'] | default('') | round(2) }}%
                                     {% else %}
-                                    &nbsp;
+                                        &nbsp;
                                     {% endif %}
                                 </td>
                             </tr>
+
                         </tbody>
                     </table>
 

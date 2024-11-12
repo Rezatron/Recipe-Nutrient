@@ -100,7 +100,6 @@ def fetch_recipes(ingredients, meal_type=None, diet_label=None, health_label=Non
 
 
 
-
 def calculate_comparison_to_rni(micro_nutrients_per_serving):
     sex = request.args.get('sex')
     age = request.args.get('age')
@@ -114,21 +113,36 @@ def calculate_comparison_to_rni(micro_nutrients_per_serving):
         protein_rni = 0.75 * weight
         age_group = get_age_group(age)
 
+        # Calculate Vitamin K Adequate Intake (1 mcg per kg of weight)
+        vitamin_k_ai = weight * 1  # in micrograms, assuming weight is in kg
+        
         if sex.lower() == 'male':
             if age_group in rni_data["Micronutrients"]["Males"]:
                 global_rni = rni_data["Micronutrients"]["Males"][age_group]
                 if global_rni:
                     for nutrient_label, nutrient_value in micro_nutrients_per_serving.items():
                         if nutrient_label in global_rni:
-                            comparison_to_rni[nutrient_label] = nutrient_value / global_rni[nutrient_label] *100
+                            comparison_to_rni[nutrient_label] = nutrient_value / global_rni[nutrient_label] * 100
         elif sex.lower() == 'female':
             if age_group in rni_data["Micronutrients"]["Females"]:
                 global_rni = rni_data["Micronutrients"]["Females"][age_group]
                 if global_rni:
                     for nutrient_label, nutrient_value in micro_nutrients_per_serving.items():
                         if nutrient_label in global_rni:
-                            comparison_to_rni[nutrient_label] = nutrient_value / global_rni[nutrient_label] *100
+                            comparison_to_rni[nutrient_label] = nutrient_value / global_rni[nutrient_label] * 100
 
+        # Adding Vitamin K AI to comparison (with asterisk notation for AI)
+        vitamin_k_intake = micro_nutrients_per_serving.get('Vitamin K', 0)
+        if vitamin_k_intake != 0:
+            vitamin_k_percentage = (vitamin_k_intake / vitamin_k_ai) * 100
+            comparison_to_rni['Vitamin K'] = {
+                'percentage': vitamin_k_percentage,
+                'ai_value': vitamin_k_ai,
+                'note': 'AI* (Adequate Intake, not RNI)'  # Asterisk notation for AI
+            }
+        
+        
+        # Protein intake calculation (similar as before)
         protein_intake = micro_nutrients_per_serving.get('Protein', 0)
         if protein_intake != 0:
             protein_rni_percentage = (protein_intake / protein_rni) * 100
@@ -136,6 +150,7 @@ def calculate_comparison_to_rni(micro_nutrients_per_serving):
         comparison_to_rni['Protein_RNI'] = protein_rni
 
     return comparison_to_rni
+
 
 
 @app.route('/recipes', methods=['GET'])
