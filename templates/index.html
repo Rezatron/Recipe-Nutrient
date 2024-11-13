@@ -236,7 +236,7 @@
                             </tr>
                             <tr>
                                 <td>Iron</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Iron'] is defined %}{{ recipe.micro_nutrients_per_serving['Iron'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Iron', '') }}</td>
+                                <td>{% if recipe.micro_nutrients_per_serving['Iron'] is defined %}{{ recipe.micro_nutrients_per_serving['Iron'] | round(2) }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Iron', '') }}</td>
                                 <td>
                                     {% if 'Iron' in recipe.comparison_to_rni %}
                                     {{ recipe.comparison_to_rni['Iron'] | default('') | round(2) }}%
@@ -247,7 +247,7 @@
                             </tr>
                             <tr>
                                 <td>Zinc</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Zinc'] is defined %}{{ recipe.micro_nutrients_per_serving['Zinc'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Zinc', '') }}</td>
+                                <td>{% if recipe.micro_nutrients_per_serving['Zinc'] is defined %}{{ recipe.micro_nutrients_per_serving['Zinc'] | round(2) }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Zinc', '') }}</td>
                                 <td>
                                     {% if 'Zinc' in recipe.comparison_to_rni %}
                                     {{ recipe.comparison_to_rni['Zinc'] | default('') | round(2) }}%
@@ -295,7 +295,7 @@
                             </tr>
                             <tr>
                                 <td>Vitamin C</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Vitamin C'] is defined %}{{ recipe.micro_nutrients_per_serving['Vitamin C'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Vitamin C', '') }}</td>
+                                <td>{% if recipe.micro_nutrients_per_serving['Vitamin C'] is defined %}{{ recipe.micro_nutrients_per_serving['Vitamin C'] | round(2) }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Vitamin C', '') }}</td>
                                 <td>
                                     {% if 'Vitamin C' in recipe.comparison_to_rni %}
                                     {{ recipe.comparison_to_rni['Vitamin C'] | default('') | round(2) }}%
@@ -306,7 +306,7 @@
                             </tr>
                             <tr>
                                 <td>Thiamin (B1)</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Thiamin (B1)'] is defined %}{{ recipe.micro_nutrients_per_serving['Thiamin (B1)'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Thiamin (B1)', '') }}</td>
+                                <td>{% if recipe.micro_nutrients_per_serving['Thiamin (B1)'] is defined %}{{ recipe.micro_nutrients_per_serving['Thiamin (B1)'] | round(2) }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Thiamin (B1)', '') }}</td>
                                 <td>
                                     {% if 'Thiamin (B1)' in recipe.comparison_to_rni %}
                                     {{ recipe.comparison_to_rni['Thiamin (B1)'] | default('') | round(2) }}%
@@ -317,7 +317,7 @@
                             </tr>
                             <tr>
                                 <td>Riboflavin (B2)</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Riboflavin (B2)'] is defined %}{{ recipe.micro_nutrients_per_serving['Riboflavin (B2)'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Riboflavin (B2)', '') }}</td>
+                                <td>{% if recipe.micro_nutrients_per_serving['Riboflavin (B2)'] is defined %}{{ recipe.micro_nutrients_per_serving['Riboflavin (B2)'] | round(2) }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Riboflavin (B2)', '') }}</td>
                                 <td>
                                     {% if 'Riboflavin (B2)' in recipe.comparison_to_rni %}
                                     {{ recipe.comparison_to_rni['Riboflavin (B2)'] | default('') | round(2) }}%
@@ -339,7 +339,7 @@
                             </tr>
                             <tr>
                                 <td>Vitamin B6</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Vitamin B6'] is defined %}{{ recipe.micro_nutrients_per_serving['Vitamin B6'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Vitamin B6', '') }}</td>
+                                <td>{% if recipe.micro_nutrients_per_serving['Vitamin B6'] is defined %}{{ recipe.micro_nutrients_per_serving['Vitamin B6'] | round(2) }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Vitamin B6', '') }}</td>
                                 <td>
                                     {% if 'Vitamin B6' in recipe.comparison_to_rni %}
                                     {{ recipe.comparison_to_rni['Vitamin B6'] | default('') | round(2) }}%
@@ -361,7 +361,7 @@
                             </tr>
                             <tr>
                                 <td>Vitamin B12</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Vitamin B12'] is defined %}{{ recipe.micro_nutrients_per_serving['Vitamin B12'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Vitamin B12', '') }}</td>
+                                <td>{% if recipe.micro_nutrients_per_serving['Vitamin B12'] is defined %}{{ recipe.micro_nutrients_per_serving['Vitamin B12'] | round(2) }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Vitamin B12', '') }}</td>
                                 <td>
                                     {% if 'Vitamin B12' in recipe.comparison_to_rni %}
                                     {{ recipe.comparison_to_rni['Vitamin B12'] | default('') | round(2) }}%
@@ -372,7 +372,7 @@
                             </tr>
                             <tr>
                                 <td>Vitamin D</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Vitamin D'] is defined %}{{ recipe.micro_nutrients_per_serving['Vitamin D'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Vitamin D', '') }}</td>
+                                <td>{% if recipe.micro_nutrients_per_serving['Vitamin D'] is defined %}{{ recipe.micro_nutrients_per_serving['Vitamin D'] | round(2) }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Vitamin D', '') }}</td>
                                 <td>
                                     {% if 'Vitamin D' in recipe.comparison_to_rni %}
                                     {{ recipe.comparison_to_rni['Vitamin D'] | default('') | round(2) }}%
@@ -383,7 +383,7 @@
                             </tr>
                             <tr>
                                 <td>Vitamin E*</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Vitamin E'] is defined %}{{ recipe.micro_nutrients_per_serving['Vitamin E'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Vitamin E', '') }}</td>
+                                <td>{% if recipe.micro_nutrients_per_serving['Vitamin E'] is defined %}{{ recipe.micro_nutrients_per_serving['Vitamin E'] | round(2) }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Vitamin E', '') }}</td>
                                 <td>
                                     {% if 'Vitamin E' in recipe.comparison_to_rni %}
                                     {{ recipe.comparison_to_rni['Vitamin E'] | default('') | round(2) }}%
@@ -396,7 +396,7 @@
                                 <td>Vitamin K*</td>
                                 <td>
                                     {% if recipe.micro_nutrients_per_serving['Vitamin K'] is defined %}
-                                        {{ recipe.micro_nutrients_per_serving['Vitamin K'] | round }} 
+                                        {{ recipe.micro_nutrients_per_serving['Vitamin K'] | round(2) }} 
                                     {% else %}
                                         &nbsp;
                                     {% endif %}
