@@ -22,7 +22,7 @@ nutrient_units = {
     'Vitamin C': 'mg',
     'Thiamin (B1)': 'mg',
     'Riboflavin (B2)': 'mg',
-    'Niacin (B3)': 'mg',
+    'Niacin (B3)': 'mg NE',
     'Vitamin B6': 'mg',
     'Folate equivalent (total)': 'mcg',
     'Folate (food)': 'mcg',

@@ -327,7 +327,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Niacin (B3)</td>
+                                <td>Niacin (B3)*</td>
                                 <td>{% if recipe.micro_nutrients_per_serving['Niacin (B3)'] is defined %}{{ recipe.micro_nutrients_per_serving['Niacin (B3)'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Niacin (B3)', '') }}</td>
                                 <td>
                                     {% if 'Niacin (B3)' in recipe.comparison_to_rni %}
@@ -349,33 +349,11 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Folate equivalent (total)</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Folate equivalent (total)'] is defined %}{{ recipe.micro_nutrients_per_serving['Folate equivalent (total)'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Folate equivalent (total)', '') }}</td>
-                                <td>
-                                    {% if 'Folate equivalent (total)' in recipe.comparison_to_rni %}
-                                    {{ recipe.comparison_to_rni['Folate equivalent (total)'] | default('') | round(2) }}%
-                                    {% else %}
-                                    &nbsp;
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>&emsp;Folate (food)</td>
+                                <td>Folate</td>
                                 <td>{% if recipe.micro_nutrients_per_serving['Folate (food)'] is defined %}{{ recipe.micro_nutrients_per_serving['Folate (food)'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Folate (food)', '') }}</td>
                                 <td>
                                     {% if 'Folate (food)' in recipe.comparison_to_rni %}
                                     {{ recipe.comparison_to_rni['Folate (food)'] | default('') | round(2) }}%
-                                    {% else %}
-                                    &nbsp;
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>&emsp;Folic acid</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Folic acid'] is defined %}{{ recipe.micro_nutrients_per_serving['Folic acid'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Folic acid', '') }}</td>
-                                <td>
-                                    {% if 'Folic acid' in recipe.comparison_to_rni %}
-                                    {{ recipe.comparison_to_rni['Folic acid'] | default('') | round(2) }}%
                                     {% else %}
                                     &nbsp;
                                     {% endif %}
