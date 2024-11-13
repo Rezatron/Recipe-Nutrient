@@ -106,56 +106,95 @@
                         <!-- Macronutrients Group -->
                         <thead>
                             <tr>
-                                <th colspan="{% if 'Protein' in recipe.comparison_to_rni %}3{% else %}2{% endif %}">Macronutrients</th>
+                                <th colspan="2">Macronutrients</th>
                             </tr>
                             <tr>
                                 <th class="nutrient-column">Nutrient</th>
                                 <th class="amount-column">Amount</th>
-                                {% if 'Protein' in recipe.comparison_to_rni %}
-                                                
-                                {% endif %}
+
+                            </tr>
                         </thead>
                         <tbody>
                             <!-- Macronutrients -->
                             <tr>
                                 <td>Energy</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Energy'] is defined %}{{ recipe.micro_nutrients_per_serving['Energy'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Energy', '') }}</td>
+                                <td>
+                                    {% if recipe.micro_nutrients_per_serving['Energy'] is defined %}
+                                        {{ recipe.micro_nutrients_per_serving['Energy'] | round }}
+                                        {% if 'Energy' in recipe.comparison_to_rni %}
+                                            <i>({{ recipe.comparison_to_rni['Energy'] | default('') | round(2) }}%)</i>
+                                        {% endif %}
+                                        {{ recipe.nutrient_units.get('Energy', '') }}
+                                    {% else %}
+                                        &nbsp;
+                                    {% endif %}
+                                </td>
                             </tr>
                             <tr>
                                 <td>Fat</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Fat'] is defined %}{{ recipe.micro_nutrients_per_serving['Fat'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Fat', '') }}</td>
+                                <td>
+                                    {% if recipe.micro_nutrients_per_serving['Fat'] is defined %}
+                                        {{ recipe.micro_nutrients_per_serving['Fat'] | round }}
+                                        {% if 'Fat' in recipe.comparison_to_rni %}
+                                            <i>({{ recipe.comparison_to_rni['Fat'] | default('') | round(2) }}%)</i>
+                                        {% endif %}
+                                        {{ recipe.nutrient_units.get('Fat', '') }}
+                                    {% else %}
+                                        &nbsp;
+                                    {% endif %}
+                                </td>
                             </tr>
                             <tr>
                                 <td>&emsp;Saturated</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Saturated'] is defined %}{{ recipe.micro_nutrients_per_serving['Saturated'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Saturated', '') }}</td>
+                                <td>{% if recipe.micro_nutrients_per_serving['Saturated'] is defined %}{{ recipe.micro_nutrients_per_serving['Saturated'] | round }} {{ recipe.nutrient_units.get('Saturated', '') }}{% else %}&nbsp;{% endif %}</td>
                             </tr>
                             <tr>
                                 <td>&emsp;Trans</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Trans'] is defined %}{{ recipe.micro_nutrients_per_serving['Trans'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Trans', '') }}</td>
+                                <td>{% if recipe.micro_nutrients_per_serving['Trans'] is defined %}{{ recipe.micro_nutrients_per_serving['Trans'] | round }} {{ recipe.nutrient_units.get('Trans', '') }}{% else %}&nbsp;{% endif %}</td>
                             </tr>
                             <tr>
                                 <td>&emsp;Monounsaturated</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Monounsaturated'] is defined %}{{ recipe.micro_nutrients_per_serving['Monounsaturated'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Monounsaturated', '') }}</td>
+                                <td>{% if recipe.micro_nutrients_per_serving['Monounsaturated'] is defined %}{{ recipe.micro_nutrients_per_serving['Monounsaturated'] | round }} {{ recipe.nutrient_units.get('Monounsaturated', '') }}{% else %}&nbsp;{% endif %}</td>
                             </tr>
                             <tr>
                                 <td>&emsp;Polyunsaturated</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Polyunsaturated'] is defined %}{{ recipe.micro_nutrients_per_serving['Polyunsaturated'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Polyunsaturated', '') }}</td>
+                                <td>{% if recipe.micro_nutrients_per_serving['Polyunsaturated'] is defined %}{{ recipe.micro_nutrients_per_serving['Polyunsaturated'] | round }} {{ recipe.nutrient_units.get('Polyunsaturated', '') }}{% else %}&nbsp;{% endif %}</td>
                             </tr>
                             <tr>
                                 <td>Carbohydrates</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Carbs'] is defined %}{{ recipe.micro_nutrients_per_serving['Carbs'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Carbs', '') }}</td>
+                                <td>{% if recipe.micro_nutrients_per_serving['Carbs'] is defined %}{{ recipe.micro_nutrients_per_serving['Carbs'] | round }} {{ recipe.nutrient_units.get('Carbs', '') }}{% else %}&nbsp;{% endif %}</td>
                             </tr>
                             <tr>
                                 <td>&emsp;Carbohydrates (net)</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Carbohydrates (net)'] is defined %}{{ recipe.micro_nutrients_per_serving['Carbohydrates (net)'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Carbohydrates (net)', '') }}</td>
+                                <td>{% if recipe.micro_nutrients_per_serving['Carbohydrates (net)'] is defined %}{{ recipe.micro_nutrients_per_serving['Carbohydrates (net)'] | round }} {{ recipe.nutrient_units.get('Carbohydrates (net)', '') }}{% else %}&nbsp;{% endif %}</td>
                             </tr>
                             <tr>
                                 <td>&emsp;Fiber</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Fiber'] is defined %}{{ recipe.micro_nutrients_per_serving['Fiber'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Fiber', '') }}</td>
+                                <td>
+                                    {% if recipe.micro_nutrients_per_serving['Fiber'] is defined %}
+                                        {{ recipe.micro_nutrients_per_serving['Fiber'] | round }}
+                                        {% if 'Fiber' in recipe.comparison_to_rni %}
+                                            <i>({{ recipe.comparison_to_rni['Fiber'] | default('') | round(2) }}%)</i>
+                                        {% endif %}
+                                        {{ recipe.nutrient_units.get('Fiber', '') }}
+                                    {% else %}
+                                        &nbsp;
+                                    {% endif %}
+                                </td>
                             </tr>
                             <tr>
                                 <td>Sugars</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Sugars'] is defined %}{{ recipe.micro_nutrients_per_serving['Sugars'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Sugars', '') }}</td>
+                                <td>
+                                    {% if recipe.micro_nutrients_per_serving['Sugars'] is defined %}
+                                        {{ recipe.micro_nutrients_per_serving['Sugars'] | round }}
+                                        {% if 'Sugars' in recipe.comparison_to_rni %}
+                                            <i>({{ recipe.comparison_to_rni['Sugars'] | default('') | round(2) }}%)</i>
+                                        {% endif %}
+                                        {{ recipe.nutrient_units.get('Sugars', '') }}
+                                    {% else %}
+                                        &nbsp;
+                                    {% endif %}
+                                </td>
                             </tr>
                             <tr>
                                 <td>Protein</td>
@@ -165,17 +204,16 @@
                                         {% if 'Protein' in recipe.comparison_to_rni %}
                                             <i>({{ recipe.comparison_to_rni['Protein'] | default('') | round(2) }}%)</i>
                                         {% endif %}
+                                        {{ recipe.nutrient_units.get('Protein', '') }}
                                     {% else %}
                                         &nbsp;
                                     {% endif %}
-                                    {{ recipe.nutrient_units.get('Protein', '') }}
                                 </td>
                             </tr>
                             <tr>
                                 <td>Cholesterol</td>
-                                <td>{% if recipe.micro_nutrients_per_serving['Cholesterol'] is defined %}{{ recipe.micro_nutrients_per_serving['Cholesterol'] | round }} {% else %}&nbsp;{% endif %} {{ recipe.nutrient_units.get('Cholesterol', '') }}</td>
-                            </tr>
-                        </tbody>
+                                <td>{% if recipe.micro_nutrients_per_serving['Cholesterol'] is defined %}{{ recipe.micro_nutrients_per_serving['Cholesterol'] | round }} {{ recipe.nutrient_units.get('Cholesterol', '') }}{% else %}&nbsp;{% endif %}</td>
+                            </tr>                        </tbody>
 
                         <!-- Minerals Group -->
                         <thead>

@@ -71,7 +71,10 @@ def fetch_recipes(ingredients, meal_type=None, diet_label=None, health_label=Non
                 if nutrient_label != 'Water':  # Excluding
                     micro_nutrients_per_serving[nutrient_label] = nutrient_value / yield_value
 
+            print(f"Micro Nutrients per Serving: {micro_nutrients_per_serving}")
+
             comparison_to_rni = calculate_comparison_to_rni(micro_nutrients_per_serving)
+            print(f"Comparison to RNI: {comparison_to_rni}")
 
             filtered_recipes.append({
                 'label': label,
@@ -89,6 +92,7 @@ def fetch_recipes(ingredients, meal_type=None, diet_label=None, health_label=Non
         sex = request.args.get('sex')
         age = request.args.get('age')
         weight = request.args.get('weight')
+        print(f"Filtered Recipes: {filtered_recipes}")
         return render_template('index.html', recipes=filtered_recipes, sex=sex, age=age, weight=weight)
 
     except requests.RequestException as e:
@@ -97,7 +101,6 @@ def fetch_recipes(ingredients, meal_type=None, diet_label=None, health_label=Non
     except Exception as e:
         logging.error(f'Error processing recipes: {e}')
         return jsonify({'error': 'Failed to process recipes'}), 500
-
 
 
 def calculate_comparison_to_rni(micro_nutrients_per_serving):
@@ -123,6 +126,7 @@ def calculate_comparison_to_rni(micro_nutrients_per_serving):
                     for nutrient_label, nutrient_value in micro_nutrients_per_serving.items():
                         if nutrient_label in global_rni:
                             comparison_to_rni[nutrient_label] = nutrient_value / global_rni[nutrient_label] * 100
+                            print(f"Calculated RNI for {nutrient_label}: {comparison_to_rni[nutrient_label]}%")
         elif sex.lower() == 'female':
             if age_group in rni_data["Micronutrients"]["Females"]:
                 global_rni = rni_data["Micronutrients"]["Females"][age_group]
@@ -130,6 +134,7 @@ def calculate_comparison_to_rni(micro_nutrients_per_serving):
                     for nutrient_label, nutrient_value in micro_nutrients_per_serving.items():
                         if nutrient_label in global_rni:
                             comparison_to_rni[nutrient_label] = nutrient_value / global_rni[nutrient_label] * 100
+                            print(f"Calculated RNI for {nutrient_label}: {comparison_to_rni[nutrient_label]}%")
 
         # Adding Vitamin K AI to comparison (with asterisk notation for AI)
         vitamin_k_intake = micro_nutrients_per_serving.get('Vitamin K', 0)
@@ -141,7 +146,6 @@ def calculate_comparison_to_rni(micro_nutrients_per_serving):
                 'note': 'AI* (Adequate Intake, not RNI)'  # Asterisk notation for AI
             }
         
-        
         # Protein intake calculation (similar as before)
         protein_intake = micro_nutrients_per_serving.get('Protein', 0)
         if protein_intake != 0:
@@ -150,8 +154,6 @@ def calculate_comparison_to_rni(micro_nutrients_per_serving):
         comparison_to_rni['Protein_RNI'] = protein_rni
 
     return comparison_to_rni
-
-
 
 @app.route('/recipes', methods=['GET'])
 def recipes():
