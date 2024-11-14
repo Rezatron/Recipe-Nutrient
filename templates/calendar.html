@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2 class="mt-5">Saved Recipes Calendar</h2>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mb-3">Back to Dashboard</a>
+        <!-- Display calendar view of saved recipes here -->
+        {% for recipe in saved_recipes %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ recipe.label }}</h5>
+                    <p class="card-text">Date Eaten: {{ recipe.date }}</p>
+                    <p class="card-text">Ingredients: {{ recipe.ingredient_lines }}</p>
+                    <p class="card-text">Calories per serving: {{ recipe.calories_per_serving }}</p>
+                    <p class="card-text">Micro Nutrients per serving: {{ recipe.micro_nutrients_per_serving }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

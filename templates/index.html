@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Recipe Suggestions</title>
 </head>
-
+    <!-- Button to go back to the dashboard -->
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
 <body>
     <h1>Recipe Suggestions</h1>
     <form action="/recipes" method="GET" class="search-form">
@@ -58,9 +59,9 @@
         </div><br><br>
 
         <!-- Hidden fields for user details -->
-        <input type="hidden" name="sex" value="{{ request.args.get('sex') }}">
-        <input type="hidden" name="age" value="{{ request.args.get('age') }}">
-        <input type="hidden" name="weight" value="{{ request.args.get('weight') }}">
+        <input type="hidden" name="sex" value="{{ request.args.get('sex', sex) }}">
+        <input type="hidden" name="age" value="{{ request.args.get('age', age) }}">
+        <input type="hidden" name="weight" value="{{ request.args.get('weight', weight) }}">
 
         <button type="submit" class="submit-button">Submit</button>
     </form>

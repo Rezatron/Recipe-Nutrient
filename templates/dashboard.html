@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .navbar {
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Recipe App</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <h2 class="mt-5">Dashboard</h2>
+        <p>Welcome, {{ user.username }}!</p>
+        <p>Sex: {{ user.sex }}</p>
+        <p>Age: {{ user.age }}</p>
+        <p>Weight: {{ user.weight }} kg</p>
+
+        <div class="section">
+            <h3>Saved Recipes Calendar</h3>
+            <!-- Display calendar view of saved recipes here -->
+            <a href="{{ url_for('view_calendar') }}" class="btn btn-info">View Calendar</a>
+        </div>
+
+        <div class="section">
+            <h3>Find New Recipes</h3>
+            <form action="{{ url_for('recipes') }}" method="GET">
+                <input type="hidden" name="sex" value="{{ user.sex }}">
+                <input type="hidden" name="age" value="{{ user.age }}">
+                <input type="hidden" name="weight" value="{{ user.weight }}">
+                <button type="submit" class="btn btn-primary">Input Ingredients</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
