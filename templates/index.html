@@ -172,11 +172,10 @@
                                 <td>&emsp;Fiber</td>
                                 <td>
                                     {% if recipe.micro_nutrients_per_serving['Fiber'] is defined %}
-                                        {{ recipe.micro_nutrients_per_serving['Fiber'] | round }}
+                                        {{ recipe.micro_nutrients_per_serving['Fiber'] | round(2) }} {{ recipe.nutrient_units.get('Fiber', '') }}
                                         {% if 'Fiber' in recipe.comparison_to_rni %}
-                                            <i>({{ recipe.comparison_to_rni['Fiber'] | default('') | round(2) }}%)</i>
+                                            <i> ({{ recipe.comparison_to_rni['Fiber'] | default('') | round(2) }}%)</i>
                                         {% endif %}
-                                        {{ recipe.nutrient_units.get('Fiber', '') }}
                                     {% else %}
                                         &nbsp;
                                     {% endif %}
@@ -200,11 +199,10 @@
                                 <td>Protein</td>
                                 <td>
                                     {% if recipe.micro_nutrients_per_serving['Protein'] is defined %}
-                                        {{ recipe.micro_nutrients_per_serving['Protein'] | round }}
+                                        {{ recipe.micro_nutrients_per_serving['Protein'] | round }} {{ recipe.nutrient_units.get('Protein', '') }}
                                         {% if 'Protein' in recipe.comparison_to_rni %}
-                                            <i>({{ recipe.comparison_to_rni['Protein'] | default('') | round(2) }}%)</i>
+                                            <i> ({{ recipe.comparison_to_rni['Protein'] | default('') | round(2) }}%)</i>
                                         {% endif %}
-                                        {{ recipe.nutrient_units.get('Protein', '') }}
                                     {% else %}
                                         &nbsp;
                                     {% endif %}
