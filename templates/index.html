@@ -452,7 +452,13 @@
                     </table>
 
                 </div>
+                            <!-- Add Save Recipe Button -->
+                <form action="{{ url_for('save_recipe') }}" method="POST">
+                    <input type="hidden" name="recipe_data" value="{{ recipe | tojson }}">
+                    <button type="submit" class="save-recipe-button">Save Recipe</button>
+                </form>
             </div>
+        </form>
         </li>
         {% endfor %}
     </ul>

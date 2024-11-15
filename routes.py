@@ -13,10 +13,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
+import json
+
+from models import db, User, Recipe, UserRecipe, Nutrient, RecipeNutrient
+from db_utils import add_recipe_to_user, get_saved_recipes, add_recipe_to_calendar
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
-db = SQLAlchemy(app)
+db.init_app(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -28,28 +32,6 @@ SEARCH_LIMIT = 1
 TIME_WINDOW = 5
 micro_nutrients_per_serving = {}
 search_counts = {}
-
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
-    password = db.Column(db.String(150), nullable=False)
-    sex = db.Column(db.String(10))
-    age = db.Column(db.Integer)
-    weight = db.Column(db.Float)
-
-class Recipe(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    label = db.Column(db.String(150), nullable=False)
-    ingredients = db.Column(db.Text, nullable=False)
-    url = db.Column(db.String(300))
-    image = db.Column(db.String(300))
-    calories_per_serving = db.Column(db.Float)
-    micro_nutrients_per_serving = db.Column(db.PickleType)
-    nutrient_units = db.Column(db.PickleType)
-    yield_value = db.Column(db.Float)
-    comparison_to_rni = db.Column(db.PickleType)
-    date = db.Column(db.Date, nullable=False)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -190,13 +172,6 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
         logging.error(f'Error processing recipes: {e}')
         return {'error': 'Failed to process recipes'}, 500
 
-    except requests.RequestException as e:
-        logging.error(f'Error fetching recipes: {e}')
-        return jsonify({'error': f'Network Error: {e}'}), 500
-    except Exception as e:
-        logging.error(f'Error processing recipes: {e}')
-        return jsonify({'error': 'Failed to process recipes'}), 500
-
 def calculate_comparison_to_rni(micro_nutrients_per_serving):
     sex = request.args.get('sex')
     age = request.args.get('age')
@@ -283,11 +258,6 @@ def view_calendar():
     saved_recipes = get_saved_recipes(current_user.id)
     return render_template('calendar.html', user=current_user, saved_recipes=saved_recipes)
 
-def get_saved_recipes(user_id):
-    # Implement logic to fetch saved recipes for the user
-    # This is a placeholder function and should be implemented with actual logic
-    return []
-
 @app.route('/add_recipe', methods=['POST'])
 @login_required
 def add_recipe():
@@ -297,10 +267,24 @@ def add_recipe():
     add_recipe_to_calendar(current_user.id, recipe_id, date)
     return redirect(url_for('dashboard'))
 
-def add_recipe_to_calendar(user_id, recipe_id, date):
-    # Implement logic to add the recipe to the calendar
-    # This is a placeholder function and should be implemented with actual logic
-    pass
+@app.route('/save_recipe', methods=['POST'])
+@login_required
+def save_recipe():
+    try:
+        recipe_data_raw = request.form['recipe_data']
+        print(f"Raw recipe data: {recipe_data_raw}")  # Debugging: Print the raw form data
+        recipe_data = json.loads(recipe_data_raw)
+        date = request.form.get('date', time.strftime('%Y-%m-%d'))
+        meal_type = request.form.get('meal_type', 'unspecified')
+        add_recipe_to_user(current_user.id, recipe_data, date, meal_type)
+        flash('Recipe saved successfully!', 'success')
+    except json.JSONDecodeError as e:
+        logging.error(f"JSON decode error: {e}")
+        flash('Failed to save recipe. Invalid data format.', 'danger')
+    except Exception as e:
+        logging.error(f"Error saving recipe: {e}")
+        flash('Failed to save recipe. An unexpected error occurred.', 'danger')
+    return redirect(url_for('dashboard'))
 
 def get_age_group(age):
     if 11 <= age <= 14:
