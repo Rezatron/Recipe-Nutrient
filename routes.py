@@ -129,6 +129,8 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
 
         for hit in sorted_recipes:
             recipe = hit['recipe']
+            print(f"Processing recipe: {recipe['label']}")  # Debugging which recipe is being processed
+
             label = recipe['label']
             ingredient_lines = recipe['ingredientLines']
             url = recipe.get('url')
@@ -136,9 +138,13 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
             calories = recipe.get('calories')
             micro_nutrients = recipe.get('totalNutrients', {})
             yield_value = recipe.get('yield', None)
+            # Debugging micro_nutrients and calories per serving
+            print(f"Micro Nutrients: {micro_nutrients}")
+            print(f"Calories: {calories}")
 
             cleaned_micro_nutrients = clean_micro_nutrients(micro_nutrients)
             calories_per_serving = calories / yield_value
+            print(f"Calories per serving: {calories_per_serving}")
 
             micro_nutrients_per_serving = {}
             for nutrient_label, nutrient_value in cleaned_micro_nutrients.items():
@@ -150,7 +156,7 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
             comparison_to_rni = calculate_comparison_to_rni(micro_nutrients_per_serving)
             print(f"Comparison to RNI: {comparison_to_rni}")
 
-            filtered_recipes.append({
+            recipe_data = {
                 'label': label,
                 'ingredient_lines': ingredient_lines,
                 'ingredients': ingredients,
@@ -161,7 +167,11 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
                 'nutrient_units': nutrient_units,
                 'yield': yield_value,
                 'comparison_to_rni': comparison_to_rni
-            })
+            }
+
+            print(f"Recipe Data: {recipe_data}")  # Debugging: Print the recipe data
+
+            filtered_recipes.append(recipe_data)
 
         return filtered_recipes, 200
 
@@ -195,7 +205,7 @@ def calculate_comparison_to_rni(micro_nutrients_per_serving):
                     for nutrient_label, nutrient_value in micro_nutrients_per_serving.items():
                         if nutrient_label in global_rni:
                             comparison_to_rni[nutrient_label] = nutrient_value / global_rni[nutrient_label] * 100
-                            print(f"Calculated RNI for {nutrient_label}: {comparison_to_rni[nutrient_label]}%")
+                            #print(f"Calculated RNI for {nutrient_label}: {comparison_to_rni[nutrient_label]}%")
         elif sex.lower() == 'female':
             if age_group in rni_data["Micronutrients"]["Females"]:
                 global_rni = rni_data["Micronutrients"]["Females"][age_group]
@@ -203,7 +213,7 @@ def calculate_comparison_to_rni(micro_nutrients_per_serving):
                     for nutrient_label, nutrient_value in micro_nutrients_per_serving.items():
                         if nutrient_label in global_rni:
                             comparison_to_rni[nutrient_label] = nutrient_value / global_rni[nutrient_label] * 100
-                            print(f"Calculated RNI for {nutrient_label}: {comparison_to_rni[nutrient_label]}%")
+                            #print(f"Calculated RNI for {nutrient_label}: {comparison_to_rni[nutrient_label]}%")
 
         # Adding Vitamin K AI to comparison (with asterisk notation for AI)
         vitamin_k_intake = micro_nutrients_per_serving.get('Vitamin K', 0)
@@ -224,16 +234,7 @@ def calculate_comparison_to_rni(micro_nutrients_per_serving):
 
     return comparison_to_rni
 
-@app.route('/fetch_recipes', methods=['POST'])
-@login_required
-def fetch_recipes():
-    ingredients = request.form['ingredients']
-    recipes, status_code = fetch_recipes_logic(ingredients)
-    if status_code == 200:
-        return render_template('dashboard.html', user=current_user, recipes=recipes)
-    else:
-        flash(recipes['error'], 'danger')
-        return redirect(url_for('dashboard'))
+
     
 @app.route('/recipes', methods=['GET'])
 def recipes():
@@ -271,19 +272,90 @@ def add_recipe():
 @login_required
 def save_recipe():
     try:
-        recipe_data_raw = request.form['recipe_data']
+        # Debugging Logs
+        print("=== DEBUGGING START ===")
+        print(f"Headers: {request.headers}")  # Log request headers
+        print(f"Raw request data (request.data): {request.data}")  # Raw data received
+        print(f"Form data (request.form): {request.form}")  # Form-encoded data received
+        print(f"JSON payload (request.get_json()): {request.get_json(silent=True)}")  # JSON if sent
+        print("=== DEBUGGING END ===")
+
+        # Retrieve JSON string from hidden input
+        recipe_data_raw = request.form.get('recipe_data')  # Get the form value
         print(f"Raw recipe data: {recipe_data_raw}")  # Debugging: Print the raw form data
-        recipe_data = json.loads(recipe_data_raw)
+
+        if not recipe_data_raw:
+            flash('Failed to save recipe. Missing recipe data.', 'danger')
+            return redirect(url_for('dashboard'))
+
+        # Parse JSON string into a Python dictionary
+        try:
+            recipe_data = json.loads(recipe_data_raw)
+        except json.JSONDecodeError as e:
+            logging.error(f"JSON decode error: {e}")
+            flash('Failed to save recipe. Invalid data format.', 'danger')
+            return redirect(url_for('dashboard'))
+
+        # Extract and save recipe details
+        label = recipe_data.get('label')
+        url = recipe_data.get('url')
+        image = recipe_data.get('image')
+        calories_per_serving = recipe_data.get('calories_per_serving', 0)
+        yield_value = recipe_data.get('yield', 1)
+
+        # Save the recipe in the database
+        recipe = Recipe(
+            label=label,
+            url=url,
+            image=image,
+            calories_per_serving=calories_per_serving,
+            yield_value=yield_value
+        )
+        db.session.add(recipe)
+        db.session.flush()  # Save changes and get recipe ID for associations
+
+        # Handle nutrients and associations
+        micro_nutrients = recipe_data.get('micro_nutrients_per_serving', {})
+        nutrient_units = recipe_data.get('nutrient_units', {})
+        for nutrient_name, amount in micro_nutrients.items():
+            unit = nutrient_units.get(nutrient_name, 'unit')  # Default to 'unit' if missing
+
+            # Ensure the nutrient exists
+            nutrient = Nutrient.query.filter_by(name=nutrient_name).first()
+            if not nutrient:
+                nutrient = Nutrient(name=nutrient_name, unit=unit)
+                db.session.add(nutrient)
+                db.session.flush()
+
+            # Link nutrient to recipe
+            recipe_nutrient = RecipeNutrient(
+                recipe_id=recipe.id,
+                nutrient_id=nutrient.id,
+                amount_per_serving=amount
+            )
+            db.session.add(recipe_nutrient)
+
+        # Link recipe to user
         date = request.form.get('date', time.strftime('%Y-%m-%d'))
         meal_type = request.form.get('meal_type', 'unspecified')
-        add_recipe_to_user(current_user.id, recipe_data, date, meal_type)
+
+        user_recipe = UserRecipe(
+            user_id=current_user.id,
+            recipe_id=recipe.id,
+            date=date,
+            meal_type=meal_type
+        )
+        db.session.add(user_recipe)
+
+        # Commit changes
+        db.session.commit()
         flash('Recipe saved successfully!', 'success')
-    except json.JSONDecodeError as e:
-        logging.error(f"JSON decode error: {e}")
-        flash('Failed to save recipe. Invalid data format.', 'danger')
+
     except Exception as e:
         logging.error(f"Error saving recipe: {e}")
+        db.session.rollback()  # Rollback on errors
         flash('Failed to save recipe. An unexpected error occurred.', 'danger')
+
     return redirect(url_for('dashboard'))
 
 def get_age_group(age):

@@ -16,10 +16,14 @@ class Recipe(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     label = db.Column(db.String(150), nullable=False)
     ingredients = db.Column(db.Text, nullable=False)
+    ingredient_lines = db.Column(db.Text, nullable=False)  # New field
     url = db.Column(db.String(300))
     image = db.Column(db.String(300))
     calories_per_serving = db.Column(db.Float)
     yield_value = db.Column(db.Float)
+    micro_nutrients_per_serving = db.Column(db.JSON)  # New field
+    nutrient_units = db.Column(db.JSON)  # New field
+    comparison_to_rni = db.Column(db.JSON)  # New field
     user_recipes = db.relationship('UserRecipe', backref='recipe', lazy=True)
     nutrients = db.relationship('RecipeNutrient', backref='recipe', lazy=True)
 
