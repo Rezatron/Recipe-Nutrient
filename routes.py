@@ -14,11 +14,18 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
-
-from models import db, User, Recipe, UserRecipe, Nutrient, RecipeNutrient
+from models import *
 from db_utils import add_recipe_to_user, get_saved_recipes, add_recipe_to_calendar
+from flask_wtf.csrf import CSRFProtect
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
+csrf = CSRFProtect(app)
+
 app.config.from_object('config.Config')
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -60,6 +67,11 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        print("=== DEBUGGING START ===")
+        print(f"Form data: {request.form}")  # Print form data
+        print(f"CSRF Token: {request.form.get('csrf_token')}")  # Print CSRF token
+        print("=== DEBUGGING END ===")
+        
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
@@ -69,7 +81,6 @@ def login():
         else:
             flash('Login Unsuccessful. Please check username and password', 'danger')
     return render_template('login.html')
-
 @app.route('/logout')
 @login_required
 def logout():
@@ -129,7 +140,7 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
 
         for hit in sorted_recipes:
             recipe = hit['recipe']
-            print(f"Processing recipe: {recipe['label']}")  # Debugging which recipe is being processed
+            #print(f"Processing recipe: {recipe['label']}")  # Debugging which recipe is being processed
 
             label = recipe['label']
             ingredient_lines = recipe['ingredientLines']
@@ -139,22 +150,22 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
             micro_nutrients = recipe.get('totalNutrients', {})
             yield_value = recipe.get('yield', None)
             # Debugging micro_nutrients and calories per serving
-            print(f"Micro Nutrients: {micro_nutrients}")
-            print(f"Calories: {calories}")
+            #print(f"Micro Nutrients: {micro_nutrients}")
+            #print(f"Calories: {calories}")
 
             cleaned_micro_nutrients = clean_micro_nutrients(micro_nutrients)
             calories_per_serving = calories / yield_value
-            print(f"Calories per serving: {calories_per_serving}")
+            #print(f"Calories per serving: {calories_per_serving}")
 
             micro_nutrients_per_serving = {}
             for nutrient_label, nutrient_value in cleaned_micro_nutrients.items():
                 if nutrient_label != 'Water':  # Excluding
                     micro_nutrients_per_serving[nutrient_label] = nutrient_value / yield_value
 
-            print(f"Micro Nutrients per Serving: {micro_nutrients_per_serving}")
+            #print(f"Micro Nutrients per Serving: {micro_nutrients_per_serving}")
 
             comparison_to_rni = calculate_comparison_to_rni(micro_nutrients_per_serving)
-            print(f"Comparison to RNI: {comparison_to_rni}")
+            #print(f"Comparison to RNI: {comparison_to_rni}")
 
             recipe_data = {
                 'label': label,
@@ -169,7 +180,7 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
                 'comparison_to_rni': comparison_to_rni
             }
 
-            print(f"Recipe Data: {recipe_data}")  # Debugging: Print the recipe data
+            #print(f"Recipe Data: {recipe_data}")  # Debugging: Print the recipe data
 
             filtered_recipes.append(recipe_data)
 
@@ -272,29 +283,19 @@ def add_recipe():
 @login_required
 def save_recipe():
     try:
-        # Debugging Logs
+        # Debugging logs
         print("=== DEBUGGING START ===")
         print(f"Headers: {request.headers}")  # Log request headers
-        print(f"Raw request data (request.data): {request.data}")  # Raw data received
-        print(f"Form data (request.form): {request.form}")  # Form-encoded data received
-        print(f"JSON payload (request.get_json()): {request.get_json(silent=True)}")  # JSON if sent
+        print(f"JSON payload (request.get_json()): {request.get_json(silent=True)}")  # JSON payload
         print("=== DEBUGGING END ===")
 
-        # Retrieve JSON string from hidden input
-        recipe_data_raw = request.form.get('recipe_data')  # Get the form value
-        print(f"Raw recipe data: {recipe_data_raw}")  # Debugging: Print the raw form data
+        # Get the JSON data sent via AJAX
+        recipe_data = request.get_json().get('recipe_data')
+        print(f"Recipe data: {recipe_data}")
 
-        if not recipe_data_raw:
-            flash('Failed to save recipe. Missing recipe data.', 'danger')
-            return redirect(url_for('dashboard'))
-
-        # Parse JSON string into a Python dictionary
-        try:
-            recipe_data = json.loads(recipe_data_raw)
-        except json.JSONDecodeError as e:
-            logging.error(f"JSON decode error: {e}")
-            flash('Failed to save recipe. Invalid data format.', 'danger')
-            return redirect(url_for('dashboard'))
+        if not recipe_data:
+            print("No recipe data provided")
+            return jsonify({'success': False, 'error': 'No recipe data provided'}), 400
 
         # Extract and save recipe details
         label = recipe_data.get('label')
@@ -302,6 +303,14 @@ def save_recipe():
         image = recipe_data.get('image')
         calories_per_serving = recipe_data.get('calories_per_serving', 0)
         yield_value = recipe_data.get('yield', 1)
+        ingredient_lines = recipe_data.get('ingredient_lines', [])
+        ingredients = recipe_data.get('ingredients', '')
+
+        # Convert ingredient_lines to a string if it's a list
+        if isinstance(ingredient_lines, list):
+            ingredient_lines = '\n'.join(ingredient_lines)
+
+        print(f"Saving recipe: {label}")
 
         # Save the recipe in the database
         recipe = Recipe(
@@ -309,7 +318,9 @@ def save_recipe():
             url=url,
             image=image,
             calories_per_serving=calories_per_serving,
-            yield_value=yield_value
+            yield_value=yield_value,
+            ingredient_lines=ingredient_lines,
+            ingredients=ingredients
         )
         db.session.add(recipe)
         db.session.flush()  # Save changes and get recipe ID for associations
@@ -336,8 +347,8 @@ def save_recipe():
             db.session.add(recipe_nutrient)
 
         # Link recipe to user
-        date = request.form.get('date', time.strftime('%Y-%m-%d'))
-        meal_type = request.form.get('meal_type', 'unspecified')
+        date = recipe_data.get('date', time.strftime('%Y-%m-%d'))
+        meal_type = recipe_data.get('meal_type', 'unspecified')
 
         user_recipe = UserRecipe(
             user_id=current_user.id,
@@ -349,15 +360,17 @@ def save_recipe():
 
         # Commit changes
         db.session.commit()
-        flash('Recipe saved successfully!', 'success')
+
+        print("Recipe saved successfully")
+        # Return success response
+        return jsonify({'success': True, 'message': 'Recipe saved successfully!'})
 
     except Exception as e:
         logging.error(f"Error saving recipe: {e}")
+        print(f"Error saving recipe: {e}")  # Print the error message to the console
         db.session.rollback()  # Rollback on errors
-        flash('Failed to save recipe. An unexpected error occurred.', 'danger')
-
-    return redirect(url_for('dashboard'))
-
+        return jsonify({'success': False, 'error': 'An unexpected error occurred'}), 500
+    
 def get_age_group(age):
     if 11 <= age <= 14:
         return "11-14 years"

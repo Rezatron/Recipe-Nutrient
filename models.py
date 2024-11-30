@@ -17,8 +17,8 @@ class Recipe(db.Model):
     label = db.Column(db.String(150), nullable=False)
     ingredients = db.Column(db.Text, nullable=False)
     ingredient_lines = db.Column(db.Text, nullable=False)  # New field
-    url = db.Column(db.String(300))
-    image = db.Column(db.String(300))
+    url = db.Column(db.Text)
+    image = db.Column(db.Text)
     calories_per_serving = db.Column(db.Float)
     yield_value = db.Column(db.Float)
     micro_nutrients_per_serving = db.Column(db.JSON)  # New field

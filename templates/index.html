@@ -441,15 +441,89 @@
                      </tbody>
                   </table>
                </div>
-               <!-- Add Save Recipe Button -->
-                <form action="{{ url_for('save_recipe') }}" method="POST">
-                    <input type="hidden" name="recipe_data" value="{{ recipe | tojson | safe }}">
-                     <!-- <p>Encoded JSON: {{ recipe | tojson | safe }}</p>  Debugging: Print the encoded JSON -->
 
-                <button type="submit" class="save-recipe-button">Save Recipe</button>
-               </form>
-            </div>
-            </form>
+
+        <!-- Save Recipe Button (no form around it now) -->
+         <!-- Save Recipe Button (no form around it now) -->
+         {% for recipe in recipes %}
+            <li class="recipe-item">
+               <h2 class="recipe-title">{{ recipe.label }}</h2>
+               <img src="{{ recipe.image }}" alt="{{ recipe.label }}" class="recipe-image">
+               <div class="recipe-details">
+                     <h3 class="detail-title">Servings:</h3>
+                     <p class="detail-value">{{ recipe.yield }}</p>
+                     <h3 class="detail-title">Ingredients:</h3>
+                     <ul class="ingredient-list">
+                        {% for ingredient_line in recipe.ingredient_lines %}
+                        <li class="ingredient-item">{{ ingredient_line }}</li>
+                        {% endfor %}
+                     </ul>
+                     <button class="see-details-button">See more details</button> <!-- Button added here -->
+                     <div class="details-popup">
+                        <button class="close-button" aria-label="Close popup">&times;</button>
+                        <h3 class="detail-title">Instructions:</h3>
+                        <ol class="instruction-list">
+                           {% if recipe.url %}
+                           <li><a href="{{ recipe.url }}" target="_blank" class="instruction-link">Link to Instructions</a></li>
+                           {% else %}
+                           <li>No instructions available</li>
+                           {% endif %}
+                        </ol>
+                        <h3 class="detail-title">Calories per Serving:</h3>
+                        <p class="detail-value">{{ recipe.calories_per_serving | default('') | round }}</p>
+                        <h3 class="detail-title">Micro-Nutrients per Serving:</h3>
+                        <!-- Nutrient table here -->
+                     </div>
+                     <button class="save-recipe-btn" data-recipe='{{ recipe | tojson | safe }}'>Save Recipe</button>
+               </div>
+            </li>
+         {% endfor %}
+               
+      <!-- Add the popup overlay element -->
+      <div class="popup-overlay"></div>
+      
+      <!-- Your JS script -->
+      <script src="{{ url_for('static', filename='script.js') }}"></script>
+      
+      <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          document.querySelectorAll('.save-recipe-btn').forEach(function(button) {
+              button.addEventListener('click', function() {
+                  // Retrieve the recipe data from the button's data attribute
+                  let recipeData = JSON.parse(this.getAttribute('data-recipe'));
+                  
+                  // Send the AJAX request
+                  fetch('/save_recipe', {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json',
+                          'X-CSRFToken': '{{ csrf_token() }}'  // CSRF token for Flask-WTF
+                      },
+                      body: JSON.stringify({ recipe_data: recipeData })
+                  })
+                  .then(response => {
+                      if (!response.ok) {
+                          throw new Error('Network response was not ok');
+                      }
+                      return response.json();
+                  })
+                  .then(data => {
+                      if (data.success) {
+                          alert(data.message || 'Recipe saved successfully!');
+                      } else {
+                          alert('Error saving recipe: ' + (data.error || 'Unknown error'));
+                      }
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                      alert('Failed to save recipe.');
+                  });
+              });
+          });
+      });
+      </script>
+
+
          </li>
          {% endfor %}
       </ul>
