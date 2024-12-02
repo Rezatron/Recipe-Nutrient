@@ -51,6 +51,11 @@ def home():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+        print("=== DEBUGGING START ===")
+        print(f"Form data: {request.form}")  # Print form data
+        print(f"CSRF Token: {request.form.get('csrf_token')}")  # Print CSRF token
+        print("=== DEBUGGING END ===")
+        
         username = request.form['username']
         password = request.form['password']
         sex = request.form['sex']
@@ -81,6 +86,7 @@ def login():
         else:
             flash('Login Unsuccessful. Please check username and password', 'danger')
     return render_template('login.html')
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -140,8 +146,6 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
 
         for hit in sorted_recipes:
             recipe = hit['recipe']
-            #print(f"Processing recipe: {recipe['label']}")  # Debugging which recipe is being processed
-
             label = recipe['label']
             ingredient_lines = recipe['ingredientLines']
             url = recipe.get('url')
@@ -149,23 +153,16 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
             calories = recipe.get('calories')
             micro_nutrients = recipe.get('totalNutrients', {})
             yield_value = recipe.get('yield', None)
-            # Debugging micro_nutrients and calories per serving
-            #print(f"Micro Nutrients: {micro_nutrients}")
-            #print(f"Calories: {calories}")
 
             cleaned_micro_nutrients = clean_micro_nutrients(micro_nutrients)
             calories_per_serving = calories / yield_value
-            #print(f"Calories per serving: {calories_per_serving}")
 
             micro_nutrients_per_serving = {}
             for nutrient_label, nutrient_value in cleaned_micro_nutrients.items():
                 if nutrient_label != 'Water':  # Excluding
                     micro_nutrients_per_serving[nutrient_label] = nutrient_value / yield_value
 
-            #print(f"Micro Nutrients per Serving: {micro_nutrients_per_serving}")
-
             comparison_to_rni = calculate_comparison_to_rni(micro_nutrients_per_serving)
-            #print(f"Comparison to RNI: {comparison_to_rni}")
 
             recipe_data = {
                 'label': label,
@@ -180,11 +177,12 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
                 'comparison_to_rni': comparison_to_rni
             }
 
-            #print(f"Recipe Data: {recipe_data}")  # Debugging: Print the recipe data
-
             filtered_recipes.append(recipe_data)
 
-        return filtered_recipes, 200
+        # Remove duplicates
+        unique_recipes = {recipe['label']: recipe for recipe in filtered_recipes}.values()
+
+        return list(unique_recipes), 200
 
     except requests.RequestException as e:
         logging.error(f'Error fetching recipes: {e}')
@@ -192,7 +190,8 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
     except Exception as e:
         logging.error(f'Error processing recipes: {e}')
         return {'error': 'Failed to process recipes'}, 500
-
+    
+    
 def calculate_comparison_to_rni(micro_nutrients_per_serving):
     sex = request.args.get('sex')
     age = request.args.get('age')
