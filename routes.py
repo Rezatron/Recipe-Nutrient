@@ -289,7 +289,11 @@ def save_recipe():
         print("=== DEBUGGING END ===")
 
         # Get the JSON data sent via AJAX
-        recipe_data = request.get_json().get('recipe_data')
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': 'Invalid JSON payload'}), 400
+
+        recipe_data = data.get('recipe_data')
         print(f"Recipe data: {recipe_data}")
 
         if not recipe_data:
@@ -368,8 +372,7 @@ def save_recipe():
         logging.error(f"Error saving recipe: {e}")
         print(f"Error saving recipe: {e}")  # Print the error message to the console
         db.session.rollback()  # Rollback on errors
-        return jsonify({'success': False, 'error': 'An unexpected error occurred'}), 500
-    
+        return jsonify({'success': False, 'error': 'An unexpected error occurred'}), 500    
 def get_age_group(age):
     if 11 <= age <= 14:
         return "11-14 years"
