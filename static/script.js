@@ -33,7 +33,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.querySelectorAll('.save-recipe-btn').forEach(function (button) {
-        button.addEventListener('click', function () {
+        button.addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent the default form submission
             // Retrieve the recipe data from the button's data attribute
             let recipeData = JSON.parse(this.getAttribute('data-recipe'));
 
@@ -42,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token() }}'  // CSRF token for Flask-WTF
+                    'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value  // CSRF token for Flask-WTF
                 },
                 body: JSON.stringify({ recipe_data: recipeData })
             })
