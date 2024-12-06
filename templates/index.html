@@ -441,79 +441,64 @@
                      </tbody>
                   </table>
                </div>
-               <!-- Add Save Recipe Button -->
-               <form action="{{ url_for('save_recipe') }}" method="POST">
-                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">  <!-- Include CSRF token as hidden input -->
-                  <input type="hidden" name="recipe_data" value="{{ recipe | tojson | safe }}">
-                  <button type="submit" class="save-recipe-button">Save Recipe</button>
-               </form>
-            </div>
-         </li>
-         {% endfor %}
-      </ul>
-      {% else %}
-      <p class="error-message">{{ error }}</p>
-      {% endif %}
-      <!-- Add popup overlay element -->
-      <div class="popup-overlay"></div>
-      <script src="{{ url_for('static', filename='script.js') }}"></script>
-      <script>
-         document.addEventListener('DOMContentLoaded', function() {
-             document.querySelectorAll('.save-recipe-button').forEach(function(button) {
-                 button.addEventListener('click', function(event) {
+                  <!-- Add Save Recipe Button -->
+                  <button class="save-recipe-btn" data-recipe='{{ recipe | tojson | safe }}'>Save Recipe</button>
+               </div>
+            </li>
+            {% endfor %}
+         </ul>
+         {% else %}
+         <p class="error-message">{{ error }}</p>
+         {% endif %}
+         <!-- Add popup overlay element -->
+         <div class="popup-overlay"></div>
+         <script src="{{ url_for('static', filename='script.js') }}"></script>
+         <script>
+            document.addEventListener('DOMContentLoaded', function() {
+               document.querySelectorAll('.save-recipe-btn').forEach(function(button) {
+                  button.addEventListener('click', function(event) {
                      event.preventDefault(); // Prevent the default form submission
-                     // Retrieve the recipe data from the hidden input field
-                     let recipeDataInput = this.previousElementSibling;
-                     let recipeData = recipeDataInput.value;
-         
+                     // Retrieve the recipe data from the button's data attribute
+                     let recipeData = JSON.parse(this.getAttribute('data-recipe'));
+
                      // Debugging: Log the recipe data
                      console.log("Recipe data:", recipeData);
-         
+
                      // Check if recipe data is empty
                      if (!recipeData) {
-                         alert("No recipe data found.");
-                         return;
+                        alert("No recipe data found.");
+                        return;
                      }
-         
-                     // Parse the recipe data
-                     try {
-                         recipeData = JSON.parse(recipeData);
-                         console.log("Parsed recipe data:", recipeData); // Log parsed data
-                     } catch (e) {
-                         console.error("Error parsing JSON:", e);
-                         alert("Failed to parse recipe data.");
-                         return;
-                     }
-         
+
                      // Send the AJAX request
                      fetch('/save_recipe', {
-                         method: 'POST',
-                         headers: {
-                             'Content-Type': 'application/json',
-                             'X-CSRFToken': '{{ csrf_token() }}'  // CSRF token for Flask-WTF
-                         },
-                         body: JSON.stringify({ recipe_data: recipeData })
+                        method: 'POST',
+                        headers: {
+                           'Content-Type': 'application/json',
+                           'X-CSRFToken': '{{ csrf_token() }}'  // CSRF token for Flask-WTF
+                        },
+                        body: JSON.stringify({ recipe_data: recipeData })
                      })
                      .then(response => {
-                         if (!response.ok) {
-                             throw new Error('Network response was not ok');
-                         }
-                         return response.json();
+                        if (!response.ok) {
+                           throw new Error('Network response was not ok');
+                        }
+                        return response.json();
                      })
                      .then(data => {
-                         if (data.success) {
-                             alert(data.message || 'Recipe saved successfully!');
-                         } else {
-                             alert('Error saving recipe: ' + (data.error || 'Unknown error'));
-                         }
+                        if (data.success) {
+                           alert(data.message || 'Recipe saved successfully!');
+                        } else {
+                           alert('Error saving recipe: ' + (data.error || 'Unknown error'));
+                        }
                      })
                      .catch(error => {
-                         console.error('Error:', error);
-                         alert('Failed to save recipe.');
+                        console.error('Error:', error);
+                        alert('Failed to save recipe.');
                      });
-                 });
-             });
-         });
-      </script>
+                  });
+               });
+            });
+         </script>
    </body>
 </html>
