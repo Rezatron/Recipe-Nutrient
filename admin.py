@@ -2,8 +2,8 @@ from flask import Flask, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from flask_admin.actions import action
 from models import db, User, Recipe, Nutrient, RecipeNutrient, UserRecipe
+from flask_admin.actions import action
 
 class MyModelView(ModelView):
     can_delete = True
@@ -16,13 +16,15 @@ class MyModelView(ModelView):
 
     def delete_model(self, model):
         try:
-            # Custom logic to delete orphaned Nutrient records when a Recipe is deleted
-            if isinstance(model, Recipe):  # Check if it's a Recipe being deleted
-                self._delete_orphaned_nutrients()  # Delete orphaned nutrients related to the recipe
-            
-            # Proceed with the normal deletion
-            self.session.delete(model)
-            self.session.commit()
+            # Perform the deletion like in action_delete_selected
+            if isinstance(model, Recipe):
+                # Delete the recipe first
+                self.session.delete(model)
+                self.session.commit()
+
+                # Now check and delete orphaned nutrients (similar to bulk delete)
+                self._delete_orphaned_nutrients()
+
             flash('Record was successfully deleted.', 'success')
         except Exception as ex:
             if not self.handle_view_exception(ex):
@@ -31,11 +33,30 @@ class MyModelView(ModelView):
             self.session.rollback()
 
     def _delete_orphaned_nutrients(self):
-        # Clean up orphaned Nutrient records that are no longer linked to any RecipeNutrient
+        # This function removes nutrients that are not linked to any recipe
         unreferenced_nutrients = db.session.query(Nutrient).outerjoin(RecipeNutrient).filter(RecipeNutrient.id == None).all()
         for nutrient in unreferenced_nutrients:
             db.session.delete(nutrient)
         db.session.commit()
+
+    @action('delete_selected', 'Delete Selected', 'Are you sure you want to delete selected records?')
+    def action_delete_selected(self, ids):
+        try:
+            ids = [int(i) for i in ids]
+            records = self.session.query(self.model).filter(self.model.id.in_(ids)).all()
+            for record in records:
+                self.session.delete(record)
+            self.session.commit()
+
+            # Ensure orphaned nutrients are also deleted for the bulk deletion
+            self._delete_orphaned_nutrients()
+
+            flash('Records were successfully deleted.', 'success')
+        except Exception as ex:
+            if not self.handle_view_exception(ex):
+                raise
+            flash(f'Failed to delete records. {str(ex)}', 'error')
+            self.session.rollback()
 
 def create_admin(app):
     admin = Admin(app, name='Admin', template_mode='bootstrap3')
@@ -44,11 +65,3 @@ def create_admin(app):
     admin.add_view(MyModelView(Nutrient, db.session))
     admin.add_view(MyModelView(RecipeNutrient, db.session))
     admin.add_view(MyModelView(UserRecipe, db.session))
-
-if __name__ == '__main__':
-    app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///your_database.db'
-    app.config['SECRET_KEY'] = 'your_secret_key'
-    db.init_app(app)
-    create_admin(app)
-    app.run(debug=True)
