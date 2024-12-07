@@ -1,31 +1,41 @@
-from flask_admin.actions import action
-from flask import request, Flask
-from flask_admin.contrib.sqla import ModelView
+from flask import Flask, flash
+from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+from flask_admin.actions import action
 from models import db, User, Recipe, Nutrient, RecipeNutrient, UserRecipe
 
 class MyModelView(ModelView):
-    can_delete = True  # Enable deletion
-    can_create = False  # Disable creation if not needed
-    can_edit = False  # Disable editing if not needed
-    column_display_pk = True  # Display primary keys in the list view
+    can_delete = True
+    can_create = False
+    can_edit = False
+    column_display_pk = True
 
     def is_accessible(self):
-        # Add your authentication logic here
         return True
-    
-    @action('delete_selected', 'Delete Selected', 'Are you sure you want to delete selected records?')
-    def action_delete_selected(self, ids):
+
+    def delete_model(self, model):
         try:
-            # Delete the selected records in bulk
-            ids = [int(i) for i in ids]
-            records = self.session.query(self.model).filter(self.model.id.in_(ids)).all()
-            for record in records:
-                self.session.delete(record)
+            # Custom logic to delete orphaned Nutrient records when a Recipe is deleted
+            if isinstance(model, Recipe):  # Check if it's a Recipe being deleted
+                self._delete_orphaned_nutrients()  # Delete orphaned nutrients related to the recipe
+            
+            # Proceed with the normal deletion
+            self.session.delete(model)
             self.session.commit()
-        except Exception as e:
+            flash('Record was successfully deleted.', 'success')
+        except Exception as ex:
+            if not self.handle_view_exception(ex):
+                raise
+            flash(f'Failed to delete record: {str(ex)}', 'error')
             self.session.rollback()
-            return str(e)
+
+    def _delete_orphaned_nutrients(self):
+        # Clean up orphaned Nutrient records that are no longer linked to any RecipeNutrient
+        unreferenced_nutrients = db.session.query(Nutrient).outerjoin(RecipeNutrient).filter(RecipeNutrient.id == None).all()
+        for nutrient in unreferenced_nutrients:
+            db.session.delete(nutrient)
+        db.session.commit()
 
 def create_admin(app):
     admin = Admin(app, name='Admin', template_mode='bootstrap3')

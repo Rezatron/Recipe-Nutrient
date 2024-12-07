@@ -25,24 +25,20 @@ class Recipe(db.Model):
     nutrient_units = db.Column(db.JSON)  # New field
     comparison_to_rni = db.Column(db.JSON)  # New field
     user_recipes = db.relationship('UserRecipe', backref='recipe', lazy=True, cascade="all, delete-orphan")
-    nutrients = db.relationship('RecipeNutrient', backref='recipe', lazy=True, cascade="all, delete-orphan")
+    recipe_nutrients = db.relationship('RecipeNutrient', backref='recipe', lazy=True, cascade="all, delete-orphan")
+
 
 class Nutrient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     unit = db.Column(db.String(50), nullable=False)
-    # Add cascade on the relationship to RecipeNutrient
     recipe_nutrients = db.relationship('RecipeNutrient', backref='nutrient', lazy=True, cascade="all, delete-orphan")
-
-
 
 class RecipeNutrient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id', ondelete='CASCADE'), nullable=False)
     nutrient_id = db.Column(db.Integer, db.ForeignKey('nutrient.id', ondelete='CASCADE'), nullable=False)
     amount_per_serving = db.Column(db.Float, nullable=False)
-
-
 
 class UserRecipe(db.Model):
     id = db.Column(db.Integer, primary_key=True)

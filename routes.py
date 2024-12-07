@@ -32,9 +32,7 @@ login_manager.login_view = 'login'
 
 create_admin(app)  # Initialize the admin interface
 
-# Set foreign key enforcement within the app context
-with app.app_context():
-    db.session.commit()  # Commit the session to apply the changes
+
     
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
