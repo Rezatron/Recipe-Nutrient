@@ -10,6 +10,7 @@ from collections import defaultdict
 import time
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -17,21 +18,24 @@ import json
 from models import *
 from db_utils import add_recipe_to_user, get_saved_recipes, add_recipe_to_calendar
 from flask_wtf.csrf import CSRFProtect
-from dotenv import load_dotenv
-
+from admin import create_admin
 
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
-csrf = CSRFProtect(app)
-
 app.config.from_object('config.Config')
 db.init_app(app)
 migrate = Migrate(app, db)
+csrf = CSRFProtect(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+create_admin(app)  # Initialize the admin interface
+
+# Set foreign key enforcement within the app context
+with app.app_context():
+    db.session.commit()  # Commit the session to apply the changes
+    
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
 

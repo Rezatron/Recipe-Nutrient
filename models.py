@@ -10,7 +10,7 @@ class User(UserMixin, db.Model):
     sex = db.Column(db.String(10))
     age = db.Column(db.Integer)
     weight = db.Column(db.Float)
-    recipes = db.relationship('UserRecipe', backref='user', lazy=True)
+    recipes = db.relationship('UserRecipe', backref='user', lazy=True, cascade="all, delete-orphan")
 
 class Recipe(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -24,23 +24,29 @@ class Recipe(db.Model):
     micro_nutrients_per_serving = db.Column(db.JSON)  # New field
     nutrient_units = db.Column(db.JSON)  # New field
     comparison_to_rni = db.Column(db.JSON)  # New field
-    user_recipes = db.relationship('UserRecipe', backref='recipe', lazy=True)
-    nutrients = db.relationship('RecipeNutrient', backref='recipe', lazy=True)
+    user_recipes = db.relationship('UserRecipe', backref='recipe', lazy=True, cascade="all, delete-orphan")
+    nutrients = db.relationship('RecipeNutrient', backref='recipe', lazy=True, cascade="all, delete-orphan")
 
 class Nutrient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     unit = db.Column(db.String(50), nullable=False)
+    # Add cascade on the relationship to RecipeNutrient
+    recipe_nutrients = db.relationship('RecipeNutrient', backref='nutrient', lazy=True, cascade="all, delete-orphan")
+
+
 
 class RecipeNutrient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id'), nullable=False)
-    nutrient_id = db.Column(db.Integer, db.ForeignKey('nutrient.id'), nullable=False)
+    recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id', ondelete='CASCADE'), nullable=False)
+    nutrient_id = db.Column(db.Integer, db.ForeignKey('nutrient.id', ondelete='CASCADE'), nullable=False)
     amount_per_serving = db.Column(db.Float, nullable=False)
+
+
 
 class UserRecipe(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id'), nullable=False)
+    recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id', ondelete='CASCADE'), nullable=False)
     date = db.Column(db.Date, nullable=False)
-    meal_type = db.Column(db.String(50), nullable=False)  # e.g., breakfast, lunch, dinner, snack
+    meal_type = db.Column(db.String(50), nullable=False)
