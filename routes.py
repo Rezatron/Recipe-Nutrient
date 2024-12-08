@@ -158,10 +158,18 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
             image = recipe.get('image')
             calories = recipe.get('calories')
             yield_value = recipe.get('yield', None)
-            meal_type_response = recipe.get('mealType', ["Unspecified"])[0]  # Default to 'Unspecified'
-            print(f"Meal type response: {meal_type_response}")  # Debugging print
+            
             cleaned_micro_nutrients = clean_micro_nutrients(recipe.get('totalNutrients', {}))
             calories_per_serving = calories / yield_value if yield_value else None
+            meal_type_response = recipe.get('mealType', ["Unspecified"])[0]
+            if '/' in meal_type_response:
+                meal_types = meal_type_response.split('/')  # ['lunch', 'dinner']
+            else:
+                meal_types = [meal_type_response]  # Single meal type
+
+            # Debugging output
+            print(f"Meal types found: {meal_types}")
+
 
             micro_nutrients_per_serving = {
                 nutrient_label: nutrient_value / yield_value
@@ -361,6 +369,9 @@ def save_recipe():
         # Link recipe to user
         date = recipe_data.get('date', time.strftime('%Y-%m-%d'))
         meal_type = recipe_data.get('meal_type', 'unspecified')
+        if isinstance(meal_type, list):
+            meal_type = '/'.join(meal_type) # Join meal types with '/' if it's a list, but API should already return this format
+
 
         user_recipe = UserRecipe(
             user_id=current_user.id,
@@ -382,6 +393,7 @@ def save_recipe():
         print(f"Error saving recipe: {e}")  # Print the error message to the console
         db.session.rollback()  # Rollback on errors
         return jsonify({'success': False, 'error': 'An unexpected error occurred'}), 500    
+    
 def get_age_group(age):
     if 11 <= age <= 14:
         return "11-14 years"
