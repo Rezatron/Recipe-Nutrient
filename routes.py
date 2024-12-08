@@ -123,9 +123,10 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
 
     encoded_ingredients = quote(ingredients)
     edamam_url = (f'https://api.edamam.com/api/recipes/v2?type=public&q={encoded_ingredients}'
-                  f'&app_id={edamam_app_id}&app_key={edamam_api_key}')    
+                  f'&app_id={edamam_app_id}&app_key={edamam_api_key}')
     max_recipes_to_show = 20
-    # search filters
+
+    # Search filters
     if meal_type:
         edamam_url += f'&mealType={meal_type}'
     if diet_label:
@@ -139,9 +140,12 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
         edamam_recipes = edamam_response.json()
 
         # Sort recipes based on the number of missing ingredients
-        sorted_recipes = sorted(edamam_recipes['hits'], key=lambda x: len(set(x['recipe']['ingredientLines']) - set(ingredients.split(','))))
+        sorted_recipes = sorted(
+            edamam_recipes['hits'],
+            key=lambda x: len(set(x['recipe']['ingredientLines']) - set(ingredients.split(',')))
+        )
 
-        # Take only the required number of recipes to show
+        # Limit results
         sorted_recipes = sorted_recipes[:max_recipes_to_show]
 
         filtered_recipes = []
@@ -153,17 +157,18 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
             url = recipe.get('url')
             image = recipe.get('image')
             calories = recipe.get('calories')
-            micro_nutrients = recipe.get('totalNutrients', {})
             yield_value = recipe.get('yield', None)
+            meal_type_response = recipe.get('mealType', ["Unspecified"])[0]  # Default to 'Unspecified'
+            print(f"Meal type response: {meal_type_response}")  # Debugging print
+            cleaned_micro_nutrients = clean_micro_nutrients(recipe.get('totalNutrients', {}))
+            calories_per_serving = calories / yield_value if yield_value else None
 
-            cleaned_micro_nutrients = clean_micro_nutrients(micro_nutrients)
-            calories_per_serving = calories / yield_value
-
-            micro_nutrients_per_serving = {}
-            for nutrient_label, nutrient_value in cleaned_micro_nutrients.items():
-                if nutrient_label != 'Water':  # Excluding
-                    micro_nutrients_per_serving[nutrient_label] = nutrient_value / yield_value
-
+            micro_nutrients_per_serving = {
+                nutrient_label: nutrient_value / yield_value
+                for nutrient_label, nutrient_value in cleaned_micro_nutrients.items()
+                if nutrient_label != 'Water'  # Exclude water
+            }
+            
             comparison_to_rni = calculate_comparison_to_rni(micro_nutrients_per_serving)
 
             recipe_data = {
@@ -176,9 +181,10 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
                 'micro_nutrients_per_serving': micro_nutrients_per_serving,
                 'nutrient_units': nutrient_units,
                 'yield': yield_value,
-                'comparison_to_rni': comparison_to_rni
+                'comparison_to_rni': comparison_to_rni,
+                'meal_type': meal_type_response  # Include meal type
             }
-
+            #print(f"Recipe data: {recipe_data}") 
             filtered_recipes.append(recipe_data)
 
         # Remove duplicates
@@ -192,6 +198,7 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
     except Exception as e:
         logging.error(f'Error processing recipes: {e}')
         return {'error': 'Failed to process recipes'}, 500
+
     
     
 def calculate_comparison_to_rni(micro_nutrients_per_serving):
