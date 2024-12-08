@@ -9,13 +9,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
     <style>
+        /* Your CSS here */
         .calendar-container {
             width: 100%;
             padding: 20px;
         }
+
         .fc-day-number {
             font-size: 1.5em;
         }
+
         .fc-event {
             cursor: pointer;
             background-color: #4CAF50; /* Green for recipes */
@@ -23,6 +26,7 @@
             padding: 10px;
             border-radius: 4px;
         }
+
         .modal {
             display: none;
             position: fixed;
@@ -32,10 +36,11 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgb(0,0,0);
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
             padding-top: 60px;
         }
+
         .modal-content {
             background-color: #fefefe;
             margin: 5% auto;
@@ -43,12 +48,14 @@
             border: 1px solid #888;
             width: 80%;
         }
+
         .close {
             color: #aaa;
             float: right;
             font-size: 28px;
             font-weight: bold;
         }
+
         .close:hover,
         .close:focus {
             color: black;
@@ -71,71 +78,82 @@
             <select id="recipeDropdown">
                 <!-- Recipe options will be populated here -->
             </select>
-            <button id="addRecipeBtn">Add Recipe</button>
+            <button id="addRecipeBtn" disabled>Add Recipe</button>
         </div>
     </div>
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             let selectedDate;
 
+            // Initialize FullCalendar
             $('#calendar').fullCalendar({
                 header: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'month,agendaWeek,agendaDay'
+                    right: 'month,agendaWeek,agendaDay',
                 },
-                events: function(start, end, timezone, callback) {
+                events: function (start, end, timezone, callback) {
                     $.ajax({
-                        url: '/get_user_recipes', // Endpoint to fetch user's saved recipes
+                        url: '/get_saved_recipes', // Fetch user's saved recipes
                         method: 'GET',
-                        success: function(data) {
-                            callback(data);
-                        }
+                        success: function (data) {
+                            callback(data); // Pass data to calendar
+                        },
                     });
                 },
-                dayClick: function(date, jsEvent, view) {
-                    selectedDate = date.format();  // Store the clicked date
-                    $('#recipeModal').show(); // Show the modal with recipes
-                    loadSavedRecipes();  // Load saved recipes for the dropdown
-                }
+                dayClick: function (date, jsEvent, view) {
+                    selectedDate = date.format(); // Store clicked date
+                    $('#recipeModal').show(); // Show modal for recipe selection
+                    loadSavedRecipes(); // Load saved recipes for dropdown
+                },
             });
 
             // Close modal when 'X' is clicked
-            $('.close').click(function() {
+            $('.close').click(function () {
                 $('#recipeModal').hide();
             });
 
             // Load saved recipes into the dropdown
             function loadSavedRecipes() {
                 $.ajax({
-                    url: '/get_saved_recipes', // Endpoint to get saved recipes
+                    url: '/get_saved_recipes', // Fetch saved recipes for user
                     method: 'GET',
-                    success: function(recipes) {
+                    success: function (recipes) {
                         let dropdown = $('#recipeDropdown');
-                        dropdown.empty(); // Clear the current options
-                        recipes.forEach(function(recipe) {
+                        dropdown.empty(); // Clear the dropdown
+                        recipes.forEach(function (recipe) {
                             dropdown.append(new Option(recipe.label, recipe.id));
                         });
-                    }
+                        $('#addRecipeBtn').prop('disabled', true); // Disable button initially
+                    },
                 });
             }
 
+            // Enable the "Add Recipe" button when a recipe is selected
+            $('#recipeDropdown').change(function () {
+                if ($('#recipeDropdown').val()) {
+                    $('#addRecipeBtn').prop('disabled', false);  // Enable button
+                } else {
+                    $('#addRecipeBtn').prop('disabled', true);   // Disable button if no recipe selected
+                }
+            });
+
             // Handle adding the recipe to the calendar
-            $('#addRecipeBtn').click(function() {
+            $('#addRecipeBtn').click(function () {
                 let recipeId = $('#recipeDropdown').val();
                 if (recipeId) {
                     $.ajax({
-                        url: '/add_recipe_to_calendar', // Endpoint to add the selected recipe to the user's calendar
+                        url: '/add_recipe_to_calendar', // Endpoint to add recipe to calendar
                         method: 'POST',
                         data: {
                             date: selectedDate,
-                            recipe_id: recipeId
+                            recipe_id: recipeId,
                         },
-                        success: function() {
-                            $('#recipeModal').hide();
-                            $('#calendar').fullCalendar('refetchEvents'); // Refresh the calendar
-                        }
+                        success: function () {
+                            $('#recipeModal').hide();  // Hide the modal
+                            $('#calendar').fullCalendar('refetchEvents');  // Refresh the calendar
+                        },
                     });
                 }
             });

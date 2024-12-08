@@ -16,9 +16,10 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from models import *
-from db_utils import add_recipe_to_user, get_saved_recipes, add_recipe_to_calendar
+from db_utils import get_saved_recipes, add_recipe_to_calendar
 from flask_wtf.csrf import CSRFProtect
 from admin import create_admin
+from views import routes  # Import blueprint
 
 load_dotenv()
 
@@ -168,7 +169,7 @@ def fetch_recipes_logic(ingredients, meal_type=None, diet_label=None, health_lab
                 meal_types = [meal_type_response]  # Single meal type
 
             # Debugging output
-            print(f"Meal types found: {meal_types}")
+            #print(f"Meal types found: {meal_types}")
 
 
             micro_nutrients_per_serving = {
@@ -291,30 +292,37 @@ def view_calendar():
 def add_recipe():
     recipe_id = request.form['recipe_id']
     date = request.form['date']
-    # Add recipe to calendar logic here
     add_recipe_to_calendar(current_user.id, recipe_id, date)
     return redirect(url_for('dashboard'))
+
+
+@app.route('/get_saved_recipes')
+@login_required
+def get_saved_recipes_route():
+    user_recipes = get_saved_recipes(current_user.id)
+    saved_recipes = [
+        {
+            'id': ur.recipe.id,
+            'label': ur.recipe.label,
+            'date': ur.date,
+            'meal_type': ur.meal_type
+        }
+        for ur in user_recipes
+    ]
+    return jsonify(saved_recipes)
 
 @app.route('/save_recipe', methods=['POST'])
 @login_required
 def save_recipe():
     try:
-        # Debugging logs
-        print("=== DEBUGGING START ===")
-        print(f"Headers: {request.headers}")  # Log request headers
-        print(f"JSON payload (request.get_json()): {request.get_json(silent=True)}")  # JSON payload
-        print("=== DEBUGGING END ===")
-
         # Get the JSON data sent via AJAX
         data = request.get_json()
         if not data:
             return jsonify({'success': False, 'error': 'Invalid JSON payload'}), 400
 
         recipe_data = data.get('recipe_data')
-        print(f"Recipe data: {recipe_data}")
 
         if not recipe_data:
-            print("No recipe data provided")
             return jsonify({'success': False, 'error': 'No recipe data provided'}), 400
 
         # Extract and save recipe details
@@ -329,8 +337,6 @@ def save_recipe():
         # Convert ingredient_lines to a string if it's a list
         if isinstance(ingredient_lines, list):
             ingredient_lines = '\n'.join(ingredient_lines)
-
-        print(f"Saving recipe: {label}")
 
         # Save the recipe in the database
         recipe = Recipe(
@@ -366,12 +372,11 @@ def save_recipe():
             )
             db.session.add(recipe_nutrient)
 
-        # Link recipe to user
+        # Link recipe to user but without triggering calendar syncing
         date = recipe_data.get('date', time.strftime('%Y-%m-%d'))
         meal_type = recipe_data.get('meal_type', 'unspecified')
         if isinstance(meal_type, list):
-            meal_type = '/'.join(meal_type) # Join meal types with '/' if it's a list, but API should already return this format
-
+            meal_type = '/'.join(meal_type)  # Join meal types if it's a list
 
         user_recipe = UserRecipe(
             user_id=current_user.id,
@@ -381,18 +386,16 @@ def save_recipe():
         )
         db.session.add(user_recipe)
 
-        # Commit changes
+        # Commit changes to save the recipe to the database
         db.session.commit()
 
-        print("Recipe saved successfully")
-        # Return success response
         return jsonify({'success': True, 'message': 'Recipe saved successfully!'})
 
     except Exception as e:
-        logging.error(f"Error saving recipe: {e}")
-        print(f"Error saving recipe: {e}")  # Print the error message to the console
         db.session.rollback()  # Rollback on errors
-        return jsonify({'success': False, 'error': 'An unexpected error occurred'}), 500    
+        return jsonify({'success': False, 'error': 'An unexpected error occurred'}), 500
+
+
     
 def get_age_group(age):
     if 11 <= age <= 14:
