@@ -372,21 +372,7 @@ def save_recipe():
             )
             db.session.add(recipe_nutrient)
 
-        # Link recipe to user but without triggering calendar syncing
-        date = recipe_data.get('date', time.strftime('%Y-%m-%d'))
-        meal_type = recipe_data.get('meal_type', 'unspecified')
-        if isinstance(meal_type, list):
-            meal_type = '/'.join(meal_type)  # Join meal types if it's a list
-
-        user_recipe = UserRecipe(
-            user_id=current_user.id,
-            recipe_id=recipe.id,
-            date=date,
-            meal_type=meal_type
-        )
-        db.session.add(user_recipe)
-
-        # Commit changes to save the recipe to the database
+        # Commit changes
         db.session.commit()
 
         return jsonify({'success': True, 'message': 'Recipe saved successfully!'})

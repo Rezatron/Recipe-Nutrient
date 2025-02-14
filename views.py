@@ -14,7 +14,6 @@ def calendar():
 @routes.route('/get_saved_recipes')
 @login_required
 def get_saved_recipes_route():
-    # Fetch saved recipes using the utility function
     user_recipes = get_saved_recipes(current_user.id)
     saved_recipes = [
         {
@@ -26,6 +25,7 @@ def get_saved_recipes_route():
         for ur in user_recipes
     ]
     return jsonify(saved_recipes)
+
 
 @routes.route('/add_recipe_to_calendar', methods=['POST'])
 @login_required
